@@ -272,7 +272,8 @@ export function FeaturesSection() {
 
         {/* Feature content */}
         <div
-          className="grid md:grid-cols-2 gap-0 rounded-2xl overflow-hidden"
+          key={active}
+          className="grid md:grid-cols-2 gap-0 rounded-2xl overflow-hidden marketing-fade-up"
           style={{ border: "1px solid rgba(255,255,255,0.07)", background: "#0D1526" }}
         >
           {/* Left: text */}

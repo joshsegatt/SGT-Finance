@@ -262,41 +262,42 @@ export async function HeroSection() {
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
-          <Link
-            href="/register"
-            className="group flex items-center gap-2.5 font-bold text-white transition-all duration-200"
-            style={{
-              padding: "14px 32px",
-              borderRadius: 14,
-              fontSize: 16,
-              background: "linear-gradient(135deg, #4979EF, #3B6CE0)",
-              boxShadow: "0 0 32px rgba(73,121,239,0.45), 0 4px 20px rgba(0,0,0,0.3)",
-            }}
-          >
-            {t("cta1")}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-          </Link>
-          <Link
-            href="/pricing"
-            className="flex items-center gap-2 font-semibold transition-all duration-200"
-            style={{
-              padding: "14px 32px",
-              borderRadius: 14,
-              fontSize: 16,
-              color: "rgba(255,255,255,0.65)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              background: "rgba(255,255,255,0.03)",
-            }}
-          >
-            {t("cta2")}
-          </Link>
+        <div className="flex flex-col items-center gap-3 mb-5">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/register"
+              className="group flex items-center gap-2.5 font-bold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+              style={{
+                padding: "15px 36px",
+                borderRadius: 14,
+                fontSize: 16,
+                background: "linear-gradient(135deg, #4979EF, #3B6CE0)",
+                boxShadow: "0 0 36px rgba(73,121,239,0.50), 0 4px 20px rgba(0,0,0,0.3)",
+                transition: "box-shadow 200ms ease, filter 200ms ease, transform 100ms ease",
+              }}
+            >
+              {t("cta1")}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            </Link>
+            <Link
+              href="/pricing"
+              className="flex items-center gap-2 font-semibold transition-all duration-200 hover:border-white/20"
+              style={{
+                padding: "15px 36px",
+                borderRadius: 14,
+                fontSize: 16,
+                color: "rgba(255,255,255,0.65)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                background: "rgba(255,255,255,0.03)",
+              }}
+            >
+              {t("cta2")}
+            </Link>
+          </div>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", letterSpacing: "0.01em" }}>
+            {t("trust")}
+          </p>
         </div>
-
-        {/* Trust line */}
-        <p className="text-[11px] tracking-wide mb-14" style={{ color: "rgba(255,255,255,0.22)" }}>
-          {t("trust")}
-        </p>
 
         {/* Dashboard mockup */}
         <div className="relative w-full" style={{ maxWidth: 960, margin: "0 auto" }}>
@@ -312,7 +313,7 @@ export async function HeroSection() {
             }}
           />
           <div
-            className="relative rounded-2xl overflow-hidden"
+            className="relative rounded-2xl overflow-hidden marketing-float"
             style={{
               border: "1px solid rgba(255,255,255,0.07)",
               boxShadow: "0 50px 150px rgba(0,0,0,0.85), 0 0 0 1px rgba(73,121,239,0.07), inset 0 1px 0 rgba(255,255,255,0.05)",

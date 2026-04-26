@@ -1,72 +1,17 @@
 import { getTranslations } from "next-intl/server";
 
+const BANKS = [
+  "Revolut", "N26", "ING", "Santander", "BBVA",
+  "Monzo", "Starling", "Montepio", "Millennium", "BPI",
+  "BNP Paribas", "Deutsche Bank",
+] as const;
+
 const STATS_KEYS = [
   { value: "300+", key: "banks" },
   { value: "100%", key: "openBanking" },
   { value: "GDPR", key: "gdpr" },
   { value: "3", key: "currencies" },
 ] as const;
-
-const PARTNERS = [
-  {
-    name: "TrueLayer",
-    desc: "Open Banking",
-    color: "#4979EF",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-        <rect width="24" height="24" rx="6" fill="#4979EF" />
-        <path d="M5 12h14M12 5l7 7-7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    name: "Salt Edge",
-    desc: "Banking API",
-    color: "#10B981",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-        <rect width="24" height="24" rx="6" fill="#10B981" />
-        <path d="M12 4C8 4 5 7 5 12s3 8 7 8 7-3 7-8" stroke="white" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="15" cy="9" r="2" fill="white" />
-      </svg>
-    ),
-  },
-  {
-    name: "Stripe",
-    desc: "Pagamentos",
-    color: "#635BFF",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-        <rect width="24" height="24" rx="6" fill="#635BFF" />
-        <path d="M10.5 9.5c0-1.1.9-1.5 2.5-1.5 2.2 0 3.5.7 3.5.7V6.5S15.3 6 12.5 6C9.5 6 8 7.5 8 9.5c0 3.7 5.5 3 5.5 5.5 0 1.1-.9 1.5-2.5 1.5-2.3 0-4-.8-4-.8v2.2s1.7.6 4 .6c3 0 4.5-1.5 4.5-3.5 0-3.8-5.5-3-5.5-5.5z" fill="white" />
-      </svg>
-    ),
-  },
-  {
-    name: "Neon",
-    desc: "Database",
-    color: "#00E5A0",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-        <rect width="24" height="24" rx="6" fill="#0A0A0A" />
-        <path d="M6 6h8l4 4v8H10L6 14V6z" fill="#00E5A0" opacity="0.9" />
-        <path d="M14 6l4 4" stroke="#00E5A0" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    name: "Prisma",
-    desc: "ORM",
-    color: "#5A67D8",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-        <rect width="24" height="24" rx="6" fill="#1A1A2E" />
-        <path d="M12 4L19 18H5L12 4z" fill="none" stroke="#5A67D8" strokeWidth="1.5" />
-        <path d="M12 4L19 18" stroke="#A5B4FC" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-];
 
 export async function SocialProofSection() {
   const t = await getTranslations("Marketing.socialProof");
@@ -81,28 +26,51 @@ export async function SocialProofSection() {
           className="text-center font-semibold uppercase tracking-widest mb-10"
           style={{ fontSize: 11, color: "rgba(255,255,255,0.28)" }}
         >
-        {t("poweredBy")}
+          {t("poweredBy")}
         </p>
 
-        {/* Partner logos */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
-          {PARTNERS.map((p) => (
+        {/* Bank pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-5">
+          {BANKS.map((bank) => (
             <div
-              key={p.name}
-              className="flex items-center gap-2.5 px-5 py-3 rounded-xl transition-all duration-200"
+              key={bank}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg"
               style={{
-                background: "rgba(255,255,255,0.03)",
+                background: "rgba(255,255,255,0.035)",
                 border: "1px solid rgba(255,255,255,0.07)",
               }}
             >
-              {p.icon}
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.80)" }}>{p.name}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.32)" }}>{p.desc}</div>
-              </div>
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "rgba(73,121,239,0.60)",
+                  display: "inline-block",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.62)", letterSpacing: "0.01em" }}>
+                {bank}
+              </span>
             </div>
           ))}
+          <div
+            className="flex items-center px-4 py-2 rounded-lg"
+            style={{ background: "rgba(73,121,239,0.07)", border: "1px solid rgba(73,121,239,0.15)" }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#7BA4FF" }}>+ 290 more</span>
+          </div>
         </div>
+
+        {/* Infrastructure note */}
+        <p className="text-center mb-16" style={{ fontSize: 11, color: "rgba(255,255,255,0.22)" }}>
+          Powered by{" "}
+          <span style={{ color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>TrueLayer</span>
+          {" & "}
+          <span style={{ color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>Salt Edge</span>
+          {" · Read-only PSD2 access · Your credentials are never shared"}
+        </p>
 
         {/* Stats */}
         <div
@@ -130,7 +98,9 @@ export async function SocialProofSection() {
               >
                 {stat.value}
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>{t(stat.key as "banks" | "openBanking" | "gdpr" | "currencies")}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>
+                {t(stat.key as "banks" | "openBanking" | "gdpr" | "currencies")}
+              </div>
             </div>
           ))}
         </div>

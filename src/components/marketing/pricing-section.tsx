@@ -100,7 +100,7 @@ export function PricingSection() {
             return (
               <div
                 key={plan.key}
-                className="relative flex flex-col rounded-2xl transition-all duration-200"
+                className={`relative flex flex-col rounded-2xl pricing-card ${isPopular ? "pricing-card-popular" : "pricing-card-default"}`}
                 style={{
                   background: isPopular ? "rgba(73,121,239,0.08)" : "rgba(255,255,255,0.03)",
                   border: isPopular
@@ -137,12 +137,12 @@ export function PricingSection() {
                     </div>
                     <div className="flex items-end gap-1 mb-3">
                       {price === 0 ? (
-                    <span className="font-black text-white" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                    <span key="free" className="font-black text-white marketing-price-pop" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
                           {t("free")}
                         </span>
                       ) : (
                         <>
-                          <span className="font-black text-white" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                          <span key={price} className="font-black text-white marketing-price-pop" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
                             €{price}
                           </span>
                           <span className="mb-1.5" style={{ fontSize: 14, color: "rgba(255,255,255,0.38)" }}>{t("perMonth")}</span>
@@ -162,7 +162,7 @@ export function PricingSection() {
                   {/* CTA */}
                   <Link
                     href={plan.ctaHref}
-                    className="flex items-center justify-center py-3 rounded-xl font-bold text-sm mb-7 transition-all duration-200"
+                    className="flex flex-col items-center py-3 rounded-xl font-bold text-sm mb-3 transition-all duration-200"
                     style={
                       isPopular
                         ? {
@@ -179,6 +179,9 @@ export function PricingSection() {
                   >
                     {plan.cta}
                   </Link>
+                  <p className="text-center mb-6" style={{ fontSize: 11, color: "rgba(255,255,255,0.28)" }}>
+                    {t("noCreditCard")}
+                  </p>
 
                   {/* Features */}
                   <div className="flex-1 space-y-3">
