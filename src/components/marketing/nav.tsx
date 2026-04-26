@@ -1,18 +1,89 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { setLocale } from "@/lib/actions";
 
-const LINKS = [
-  { label: "Funcionalidades", href: "#features" },
-  { label: "Como Funciona", href: "#how-it-works" },
-  { label: "Preços", href: "/pricing" },
-];
+const LOCALES = [
+  { code: "en", label: "EN", flag: "🇬🇧" },
+  { code: "pt", label: "PT", flag: "🇧🇷" },
+  { code: "fr", label: "FR", flag: "🇫🇷" },
+] as const;
+
+function MarketingLangSwitcher() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [currentLocale, setCurrentLocale] = useState("en");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);
+    if (match) setCurrentLocale(decodeURIComponent(match[1]));
+  }, []);
+
+  async function handleSelect(code: string) {
+    if (code === currentLocale) return;
+    setCurrentLocale(code);
+    await setLocale(code);
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  const current = LOCALES.find((l) => l.code === currentLocale) ?? LOCALES[0];
+
+  return (
+    <div className="relative group">
+      <button
+        disabled={pending}
+        aria-label="Change language"
+        className="flex items-center gap-1.5 text-sm font-semibold px-2 py-1.5 rounded-lg transition-colors"
+        style={{ color: "rgba(255,255,255,0.45)", background: "transparent" }}
+      >
+        <span>{current.flag}</span>
+        <span>{current.label}</span>
+      </button>
+      <div
+        className="absolute right-0 top-full mt-1 z-50 hidden group-hover:flex group-focus-within:flex flex-col rounded-xl overflow-hidden py-1"
+        style={{
+          background: "rgba(8,14,28,0.98)",
+          border: "1px solid rgba(255,255,255,0.10)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
+          minWidth: 108,
+        }}
+      >
+        {LOCALES.map(({ code, label, flag }) => (
+          <button
+            key={code}
+            onClick={() => handleSelect(code)}
+            className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors w-full text-left"
+            style={{
+              background: code === currentLocale ? "rgba(73,121,239,0.12)" : "transparent",
+              color: code === currentLocale ? "#7BA4FF" : "rgba(255,255,255,0.50)",
+              fontWeight: code === currentLocale ? 700 : 500,
+            }}
+          >
+            <span>{flag}</span>
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function MarketingNav() {
+  const t = useTranslations("Marketing.nav");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const LINKS = [
+    { label: t("features"), href: "#features" },
+    { label: t("howItWorks"), href: "#how-it-works" },
+    { label: t("pricing"), href: "/pricing" },
+  ];
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 24);
@@ -24,9 +95,7 @@ export function MarketingNav() {
     <nav
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled
-          ? "rgba(5,10,20,0.92)"
-          : "transparent",
+        background: scrolled ? "rgba(5,10,20,0.92)" : "transparent",
         backdropFilter: scrolled ? "blur(20px)" : "none",
         borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
         boxShadow: scrolled ? "0 4px 40px rgba(0,0,0,0.4)" : "none",
@@ -62,12 +131,13 @@ export function MarketingNav() {
         </div>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <MarketingLangSwitcher />
           <Link
             href="/login"
             className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150"
           >
-            Entrar
+            {t("login")}
           </Link>
           <Link
             href="/register"
@@ -83,7 +153,7 @@ export function MarketingNav() {
               (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(73,121,239,0.35)";
             }}
           >
-            Começar Grátis
+            {t("cta")}
           </Link>
         </div>
 
@@ -91,7 +161,7 @@ export function MarketingNav() {
         <button
           onClick={() => setOpen(!open)}
           className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
-          aria-label="Abrir menu"
+          aria-label="Toggle menu"
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -117,12 +187,15 @@ export function MarketingNav() {
             </Link>
           ))}
           <div className="pt-3 flex flex-col gap-2.5">
+            <div className="flex justify-center pb-1">
+              <MarketingLangSwitcher />
+            </div>
             <Link
               href="/login"
               onClick={() => setOpen(false)}
               className="px-4 py-3 text-sm text-center font-medium text-white/60 border border-white/10 rounded-xl hover:bg-white/[0.05] transition-all"
             >
-              Entrar
+              {t("login")}
             </Link>
             <Link
               href="/register"
@@ -130,7 +203,7 @@ export function MarketingNav() {
               className="px-4 py-3 text-sm text-center font-bold text-white rounded-xl transition-all"
               style={{ background: "linear-gradient(135deg, #4979EF, #3B6CE0)" }}
             >
-              Começar Grátis
+              {t("cta")}
             </Link>
           </div>
         </div>

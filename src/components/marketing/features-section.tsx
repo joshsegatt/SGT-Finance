@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
-const FEATURES = [
+const FEATURE_EMOJIS = ["\uD83C\uDFE6", "\uD83D\uDCC4", "\uD83D\uDCCA", "\uD83D\uDCBC"] as const;
+
+const FEATURE_MOCKUPS = [
   {
     tab: "Open Banking",
     emoji: "🏦",
@@ -193,7 +196,23 @@ const FEATURES = [
 ];
 
 export function FeaturesSection() {
+  const t = useTranslations("Marketing.features");
   const [active, setActive] = useState(0);
+
+  const FEATURES = FEATURE_EMOJIS.map((emoji, i) => ({
+    emoji,
+    tab: t(`tab${i}` as "tab0" | "tab1" | "tab2" | "tab3"),
+    title: t(`f${i}title` as "f0title" | "f1title" | "f2title" | "f3title"),
+    description: t(`f${i}desc` as "f0desc" | "f1desc" | "f2desc" | "f3desc"),
+    bullets: [
+      t(`f${i}b0` as "f0b0" | "f1b0" | "f2b0" | "f3b0"),
+      t(`f${i}b1` as "f0b1" | "f1b1" | "f2b1" | "f3b1"),
+      t(`f${i}b2` as "f0b2" | "f1b2" | "f2b2" | "f3b2"),
+      t(`f${i}b3` as "f0b3" | "f1b3" | "f2b3" | "f3b3"),
+    ],
+    mockup: FEATURE_MOCKUPS[i].mockup,
+  }));
+
   const feature = FEATURES[active];
 
   return (
@@ -208,13 +227,13 @@ export function FeaturesSection() {
             className="inline-block px-3 py-1 rounded-full mb-5 text-[11px] font-semibold uppercase tracking-widest"
             style={{ background: "rgba(73,121,239,0.10)", border: "1px solid rgba(73,121,239,0.20)", color: "#7BA4FF" }}
           >
-            Funcionalidades
+            {t("badge")}
           </div>
           <h2
             className="font-black tracking-tight text-white leading-tight"
             style={{ fontSize: "clamp(28px, 4vw, 48px)" }}
           >
-            Tudo o que precisas,{" "}
+            {t("headline1")}{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #4979EF, #7C3AED)",
@@ -223,11 +242,11 @@ export function FeaturesSection() {
                 backgroundClip: "text",
               }}
             >
-              numa plataforma
+              {t("headline2")}
             </span>
           </h2>
           <p className="mt-4 max-w-xl mx-auto" style={{ fontSize: 16, color: "rgba(255,255,255,0.40)", lineHeight: 1.7 }}>
-            Uma solução completa para PMEs que querem controlar as suas finanças com precisão e sem complexidade.
+            {t("subhead")}
           </p>
         </div>
 

@@ -1,47 +1,49 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-const COLUMNS = [
-  {
-    title: "Produto",
-    links: [
-      { label: "Funcionalidades", href: "#features" },
-      { label: "Preços", href: "/pricing" },
-      { label: "Open Banking", href: "#features" },
-      { label: "Facturação", href: "#features" },
-      { label: "Analytics", href: "#features" },
-      { label: "Impostos", href: "#features" },
-    ],
-  },
-  {
-    title: "Empresa",
-    links: [
-      { label: "Sobre Nós", href: "/about" },
-      { label: "Blog", href: "/blog" },
-      { label: "Carreiras", href: "/careers" },
-      { label: "Parceiros", href: "/partners" },
-    ],
-  },
-  {
-    title: "Suporte",
-    links: [
-      { label: "Documentação", href: "/docs" },
-      { label: "Centro de Ajuda", href: "/help" },
-      { label: "Estado do Sistema", href: "/status" },
-      { label: "Contacto", href: "/contact" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Termos de Serviço", href: "/terms" },
-      { label: "Privacidade & RGPD", href: "/privacy" },
-      { label: "Cookies", href: "/privacy#cookies" },
-      { label: "Segurança", href: "/security" },
-    ],
-  },
-];
+export async function MarketingFooter() {
+  const t = await getTranslations("Marketing.footer");
 
-export function MarketingFooter() {
+  const COLUMNS = [
+    {
+      title: t("product"),
+      links: [
+        { label: t("lFeatures"), href: "#features" },
+        { label: t("lPricing"), href: "/pricing" },
+        { label: t("lOpenBanking"), href: "#features" },
+        { label: t("lInvoicing"), href: "#features" },
+        { label: t("lAnalytics"), href: "#features" },
+        { label: t("lTaxes"), href: "#features" },
+      ],
+    },
+    {
+      title: t("company"),
+      links: [
+        { label: t("lAbout"), href: "/about" },
+        { label: t("lBlog"), href: "/blog" },
+        { label: t("lCareers"), href: "/careers" },
+        { label: t("lPartners"), href: "/partners" },
+      ],
+    },
+    {
+      title: t("support"),
+      links: [
+        { label: t("lDocs"), href: "/docs" },
+        { label: t("lHelp"), href: "/help" },
+        { label: t("lStatus"), href: "/status" },
+        { label: t("lContact"), href: "/contact" },
+      ],
+    },
+    {
+      title: t("legal"),
+      links: [
+        { label: t("lTerms"), href: "/terms" },
+        { label: t("lPrivacy"), href: "/privacy" },
+        { label: t("lCookies"), href: "/privacy#cookies" },
+        { label: t("lSecurity"), href: "/security" },
+      ],
+    },
+  ];
   return (
     <footer
       style={{
@@ -70,7 +72,7 @@ export function MarketingFooter() {
               </span>
             </Link>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", lineHeight: 1.7, maxWidth: 220 }}>
-              Controlo financeiro total para PMEs portuguesas e europeias.
+              {t("tagline")}
             </p>
             {/* Social links */}
             <div className="flex items-center gap-3 mt-6">
@@ -149,13 +151,13 @@ export function MarketingFooter() {
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)" }}>
-            © {new Date().getFullYear()} Segatt Labs · Todos os direitos reservados · Lisboa, Portugal
+            {t("copyright", { year: new Date().getFullYear() })}
           </p>
           <div className="flex items-center gap-5">
             {[
-              { label: "Termos", href: "/terms" },
-              { label: "Privacidade", href: "/privacy" },
-              { label: "Cookies", href: "/privacy#cookies" },
+              { label: t("lTerms"), href: "/terms" },
+              { label: t("lPrivacy"), href: "/privacy" },
+              { label: t("lCookies"), href: "/privacy#cookies" },
             ].map((link) => (
               <Link
                 key={link.label}

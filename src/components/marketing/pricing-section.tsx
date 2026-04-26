@@ -2,75 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
-const PLANS = [
-  {
-    key: "FREE",
-    name: "Gratuito",
-    monthlyPrice: 0,
-    annualPrice: 0,
-    description: "Para freelancers e microempresas que estão a começar.",
-    color: "rgba(255,255,255,0.07)",
-    accentColor: "rgba(255,255,255,0.15)",
-    cta: "Começar Grátis",
-    ctaHref: "/register",
-    features: [
-      "1 empresa",
-      "2 contas bancárias",
-      "10 faturas por mês",
-      "Dashboard básico",
-      "Suporte por email",
-    ],
-    missing: ["Analytics avançados", "API access", "Relatórios personalizados"],
-  },
-  {
-    key: "PRO",
-    name: "Pro",
-    monthlyPrice: 19,
-    annualPrice: 15,
-    description: "Para PMEs que precisam de visibilidade financeira completa.",
-    popular: true,
-    color: "rgba(73,121,239,0.12)",
-    accentColor: "#4979EF",
-    cta: "Começar Pro",
-    ctaHref: "/register?plan=pro",
-    features: [
-      "3 empresas",
-      "10 contas bancárias",
-      "Faturas ilimitadas",
-      "Analytics avançados",
-      "Gestão de impostos",
-      "Relatórios de cash flow",
-      "Suporte prioritário",
-    ],
-    missing: ["API access", "White-label"],
-  },
-  {
-    key: "BUSINESS",
-    name: "Business",
-    monthlyPrice: 49,
-    annualPrice: 39,
-    description: "Para grupos empresariais e contabilistas que gerem múltiplos clientes.",
-    color: "rgba(124,58,237,0.10)",
-    accentColor: "#7C3AED",
-    cta: "Contactar Vendas",
-    ctaHref: "/register?plan=business",
-    features: [
-      "Empresas ilimitadas",
-      "Contas ilimitadas",
-      "Faturas ilimitadas",
-      "Analytics + previsões",
-      "API completa",
-      "Relatórios personalizados",
-      "White-label disponível",
-      "Gestor de conta dedicado",
-    ],
-    missing: [],
-  },
-];
+const PLAN_KEYS = [
+  { key: "FREE", monthlyPrice: 0, annualPrice: 0, color: "rgba(255,255,255,0.07)", accentColor: "rgba(255,255,255,0.15)", ctaHref: "/register", featKey: "free", popular: false },
+  { key: "PRO", monthlyPrice: 19, annualPrice: 15, color: "rgba(73,121,239,0.12)", accentColor: "#4979EF", ctaHref: "/register?plan=pro", featKey: "pro", popular: true },
+  { key: "BUSINESS", monthlyPrice: 49, annualPrice: 39, color: "rgba(124,58,237,0.10)", accentColor: "#7C3AED", ctaHref: "/register?plan=business", featKey: "biz", popular: false },
+] as const;
+
 
 export function PricingSection() {
+  const t = useTranslations("Marketing.pricing");
   const [annual, setAnnual] = useState(false);
+
+  const PLANS = PLAN_KEYS.map((p) => ({
+    ...p,
+    name: p.key === "FREE" ? "Free" : p.key === "PRO" ? "Pro" : "Business",
+    description: t(`plan${p.key.charAt(0) + p.key.slice(1).toLowerCase()}Desc` as "planFreeDesc" | "planProDesc" | "planBusinessDesc"),
+    cta: p.key === "FREE" ? t("ctaFree") : p.key === "PRO" ? t("ctaPro") : t("ctaBusiness"),
+    features: t.raw(`${p.featKey}Features`) as string[],
+    missing: t.raw(`${p.featKey}Missing`) as string[],
+  }));
 
   return (
     <section
@@ -90,7 +42,7 @@ export function PricingSection() {
             className="font-black tracking-tight text-white mb-4"
             style={{ fontSize: "clamp(28px, 4vw, 48px)" }}
           >
-            Preços simples e{" "}
+            {t("headline1")}{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #4979EF, #7C3AED)",
@@ -99,11 +51,11 @@ export function PricingSection() {
                 backgroundClip: "text",
               }}
             >
-              transparentes
+              {t("headline2")}
             </span>
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.38)", marginBottom: 32 }}>
-            Sem taxas escondidas. Cancela a qualquer momento.
+            {t("subhead")}
           </p>
 
           {/* Toggle */}
@@ -117,7 +69,7 @@ export function PricingSection() {
                 border: !annual ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
               }}
             >
-              Mensal
+              {t("monthly")}
             </button>
             <button
               onClick={() => setAnnual(true)}
@@ -128,12 +80,12 @@ export function PricingSection() {
                 border: annual ? "1px solid rgba(73,121,239,0.30)" : "1px solid transparent",
               }}
             >
-              Anual
+              {t("annual")}
               <span
                 className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
                 style={{ background: "rgba(34,197,94,0.18)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.25)" }}
               >
-                −20%
+                {t("annualDiscount")}
               </span>
             </button>
           </div>
@@ -166,7 +118,7 @@ export function PricingSection() {
                       boxShadow: "0 4px 20px rgba(73,121,239,0.4)",
                     }}
                   >
-                    Mais Popular
+                    {t("mostPopular")}
                   </div>
                 )}
 
@@ -185,21 +137,21 @@ export function PricingSection() {
                     </div>
                     <div className="flex items-end gap-1 mb-3">
                       {price === 0 ? (
-                        <span className="font-black text-white" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
-                          Grátis
+                    <span className="font-black text-white" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                          {t("free")}
                         </span>
                       ) : (
                         <>
                           <span className="font-black text-white" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
                             €{price}
                           </span>
-                          <span className="mb-1.5" style={{ fontSize: 14, color: "rgba(255,255,255,0.38)" }}>/mês</span>
+                          <span className="mb-1.5" style={{ fontSize: 14, color: "rgba(255,255,255,0.38)" }}>{t("perMonth")}</span>
                         </>
                       )}
                     </div>
                     {annual && price > 0 && (
                       <div className="text-[11px] mb-3" style={{ color: "#22c55e" }}>
-                        Faturado anualmente · poupa €{(plan.monthlyPrice - plan.annualPrice) * 12}/ano
+                        {t("annualSaving", { amount: (plan.monthlyPrice - plan.annualPrice) * 12 })}
                       </div>
                     )}
                     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.38)", lineHeight: 1.6 }}>
@@ -265,8 +217,8 @@ export function PricingSection() {
 
         {/* Footer note */}
         <p className="text-center mt-10" style={{ fontSize: 13, color: "rgba(255,255,255,0.28)" }}>
-          Todos os planos incluem SSL, GDPR compliance e backups automáticos diários.{" "}
-          <Link href="/pricing" style={{ color: "#7BA4FF" }}>Ver comparação completa →</Link>
+          {t("footerNote")}{" "}
+          <Link href="/pricing" style={{ color: "#7BA4FF" }}>{t("comparisonLink")}</Link>
         </p>
       </div>
     </section>

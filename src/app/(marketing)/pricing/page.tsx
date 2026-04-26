@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { CtaSection } from "@/components/marketing/cta-section";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Preços — SGT Finance",
@@ -26,7 +27,8 @@ const COMPARISON = [
   { feature: "SSL + backups diários", free: "✓", pro: "✓", business: "✓" },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const t = await getTranslations("Marketing.pricingPage");
   return (
     <main style={{ background: "#050A14", minHeight: "100vh" }}>
       {/* Hero */}
@@ -43,13 +45,13 @@ export default function PricingPage() {
             className="inline-flex items-center gap-1.5 mb-8 text-sm transition-colors"
             style={{ color: "rgba(255,255,255,0.35)" }}
           >
-            ← Voltar ao início
+            {t("back")}
           </Link>
           <h1
             className="font-black text-white tracking-tight mb-4"
             style={{ fontSize: "clamp(32px, 5vw, 56px)", lineHeight: 1.05 }}
           >
-            Preços simples,{" "}
+            {t("headline1")}{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #4979EF, #7C3AED)",
@@ -58,11 +60,11 @@ export default function PricingPage() {
                 backgroundClip: "text",
               }}
             >
-              sem surpresas
+              {t("headline2")}
             </span>
           </h1>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.40)", lineHeight: 1.7 }}>
-            Começa grátis. Cresce quando precisares. Cancela a qualquer momento.
+            {t("subhead")}
           </p>
         </div>
       </div>
@@ -77,7 +79,7 @@ export default function PricingPage() {
             className="text-center font-bold text-white mb-12"
             style={{ fontSize: 28 }}
           >
-            Comparação completa
+            {t("comparison")}
           </h2>
           <div
             className="rounded-2xl overflow-hidden"

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 function DashboardPreview() {
   const alerts = [
@@ -187,7 +188,8 @@ function DashboardPreview() {
   );
 }
 
-export function HeroSection() {
+export async function HeroSection() {
+  const t = await getTranslations("Marketing.hero");
   return (
     <section
       className="relative overflow-hidden flex flex-col"
@@ -227,7 +229,7 @@ export function HeroSection() {
             />
             <span className="relative inline-flex rounded-full" style={{ width: 7, height: 7, background: "#4979EF" }} />
           </span>
-          Open Banking · GDPR · Multi-empresa · Multimoeda
+          {t("badge")}
         </div>
 
         {/* Headline */}
@@ -235,7 +237,7 @@ export function HeroSection() {
           className="font-black tracking-tight text-white leading-[1.03] mb-6"
           style={{ fontSize: "clamp(38px, 6.5vw, 72px)", maxWidth: 900 }}
         >
-          Controlo financeiro
+          {t("headline1")}
           <br />
           <span
             style={{
@@ -245,10 +247,10 @@ export function HeroSection() {
               backgroundClip: "text",
             }}
           >
-            total e inteligente
+            {t("headline2")}
           </span>
           <br />
-          para PMEs modernas.
+          {t("headline3")}
         </h1>
 
         {/* Subhead */}
@@ -256,8 +258,7 @@ export function HeroSection() {
           className="font-light leading-relaxed mb-10"
           style={{ fontSize: "clamp(16px, 1.8vw, 19px)", color: "rgba(255,255,255,0.45)", maxWidth: 580 }}
         >
-          Sincroniza bancos automaticamente, emite faturas profissionais,
-          controla impostos e visualiza o teu cash flow — tudo numa só plataforma.
+          {t("subhead")}
         </p>
 
         {/* CTAs */}
@@ -273,7 +274,7 @@ export function HeroSection() {
               boxShadow: "0 0 32px rgba(73,121,239,0.45), 0 4px 20px rgba(0,0,0,0.3)",
             }}
           >
-            Começar Grátis
+            {t("cta1")}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
           <Link
@@ -288,13 +289,13 @@ export function HeroSection() {
               background: "rgba(255,255,255,0.03)",
             }}
           >
-            Ver Planos & Preços
+            {t("cta2")}
           </Link>
         </div>
 
         {/* Trust line */}
         <p className="text-[11px] tracking-wide mb-14" style={{ color: "rgba(255,255,255,0.22)" }}>
-          Sem cartão de crédito · Plano gratuito para sempre · Cancela a qualquer momento
+          {t("trust")}
         </p>
 
         {/* Dashboard mockup */}

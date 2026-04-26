@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-export function CtaSection() {
+export async function CtaSection() {
+  const t = await getTranslations("Marketing.cta");
   return (
     <section
       className="relative overflow-hidden"
@@ -18,7 +20,7 @@ export function CtaSection() {
       <div className="relative max-w-3xl mx-auto px-6 text-center">
         {/* Trust badges */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-          {["🔒 SSL Encriptado", "🇪🇺 GDPR Compliant", "🏦 Open Banking", "⚡ 99.9% Uptime"].map((badge) => (
+          {[t("badge1"), t("badge2"), t("badge3"), t("badge4")].map((badge) => (
             <div
               key={badge}
               className="px-3 py-1.5 rounded-lg text-xs font-medium"
@@ -37,7 +39,7 @@ export function CtaSection() {
           className="font-black text-white tracking-tight mb-6"
           style={{ fontSize: "clamp(32px, 5vw, 56px)", lineHeight: 1.05 }}
         >
-          Começa grátis hoje.
+          {t("headline1")}
           <br />
           <span
             style={{
@@ -47,13 +49,12 @@ export function CtaSection() {
               backgroundClip: "text",
             }}
           >
-            Sem cartão de crédito.
+            {t("headline2")}
           </span>
         </h2>
 
         <p className="mb-10" style={{ fontSize: 18, color: "rgba(255,255,255,0.40)", lineHeight: 1.7 }}>
-          Junta-te a centenas de PMEs que já controlam as suas finanças com o SGT Finance.
-          Configuração em menos de 5 minutos.
+          {t("body")}
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -68,7 +69,7 @@ export function CtaSection() {
               boxShadow: "0 0 40px rgba(73,121,239,0.45), 0 4px 24px rgba(0,0,0,0.4)",
             }}
           >
-            Criar conta grátis
+            {t("button1")}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
           <Link
@@ -83,12 +84,12 @@ export function CtaSection() {
               background: "rgba(255,255,255,0.03)",
             }}
           >
-            Ver todos os planos
+            {t("button2")}
           </Link>
         </div>
 
         <p className="mt-6 text-sm" style={{ color: "rgba(255,255,255,0.22)" }}>
-          Plano gratuito para sempre · Sem compromisso · Cancela a qualquer momento
+          {t("trust")}
         </p>
       </div>
     </section>

@@ -1,9 +1,11 @@
-const STATS = [
-  { value: "300+", label: "Bancos Suportados" },
-  { value: "100%", label: "Open Banking Certificado" },
-  { value: "GDPR", label: "Compliant" },
-  { value: "3", label: "Moedas Suportadas" },
-];
+import { getTranslations } from "next-intl/server";
+
+const STATS_KEYS = [
+  { value: "300+", key: "banks" },
+  { value: "100%", key: "openBanking" },
+  { value: "GDPR", key: "gdpr" },
+  { value: "3", key: "currencies" },
+] as const;
 
 const PARTNERS = [
   {
@@ -66,7 +68,8 @@ const PARTNERS = [
   },
 ];
 
-export function SocialProofSection() {
+export async function SocialProofSection() {
+  const t = await getTranslations("Marketing.socialProof");
   return (
     <section
       className="relative overflow-hidden"
@@ -78,7 +81,7 @@ export function SocialProofSection() {
           className="text-center font-semibold uppercase tracking-widest mb-10"
           style={{ fontSize: 11, color: "rgba(255,255,255,0.28)" }}
         >
-          Construído sobre as melhores tecnologias do sector
+        {t("poweredBy")}
         </p>
 
         {/* Partner logos */}
@@ -106,9 +109,9 @@ export function SocialProofSection() {
           className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden"
           style={{ border: "1px solid rgba(255,255,255,0.07)" }}
         >
-          {STATS.map((stat, i) => (
+          {STATS_KEYS.map((stat, i) => (
             <div
-              key={stat.label}
+              key={stat.key}
               className="flex flex-col items-center py-8 px-6 text-center"
               style={{
                 background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "rgba(255,255,255,0.015)",
@@ -127,7 +130,7 @@ export function SocialProofSection() {
               >
                 {stat.value}
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>{stat.label}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>{t(stat.key as "banks" | "openBanking" | "gdpr" | "currencies")}</div>
             </div>
           ))}
         </div>

@@ -1,4 +1,6 @@
-const STEPS = [
+import { getTranslations } from "next-intl/server";
+
+const STEP_ICONS = [
   {
     number: "01",
     icon: (
@@ -43,7 +45,8 @@ const STEPS = [
   },
 ];
 
-export function HowItWorksSection() {
+export async function HowItWorksSection() {
+  const t = await getTranslations("Marketing.howItWorks");
   return (
     <section
       id="how-it-works"
@@ -56,13 +59,13 @@ export function HowItWorksSection() {
             className="inline-block px-3 py-1 rounded-full mb-5 text-[11px] font-semibold uppercase tracking-widest"
             style={{ background: "rgba(124,58,237,0.10)", border: "1px solid rgba(124,58,237,0.20)", color: "#A78BFA" }}
           >
-            Como Funciona
+            {t("badge")}
           </div>
           <h2
             className="font-black tracking-tight text-white"
             style={{ fontSize: "clamp(28px, 4vw, 48px)" }}
           >
-            Começa em{" "}
+            {t("headline1")}{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #7C3AED, #06B6D4)",
@@ -71,11 +74,11 @@ export function HowItWorksSection() {
                 backgroundClip: "text",
               }}
             >
-              3 passos simples
+              {t("headline2")}
             </span>
           </h2>
           <p className="mt-4 max-w-lg mx-auto" style={{ fontSize: 16, color: "rgba(255,255,255,0.38)", lineHeight: 1.7 }}>
-            De zero a controlo financeiro completo em menos de 5 minutos.
+            {t("subhead")}
           </p>
         </div>
 
@@ -88,7 +91,7 @@ export function HowItWorksSection() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6">
-            {STEPS.map((step, i) => (
+            {STEP_ICONS.map((step, i) => (
               <div
                 key={step.number}
                 className="relative flex flex-col items-center text-center"
@@ -117,15 +120,15 @@ export function HowItWorksSection() {
                 </div>
 
                 <div className="text-[11px] font-bold tracking-widest mb-3" style={{ color: i === 0 ? "#4979EF" : i === 1 ? "#7C3AED" : "#06B6D4", opacity: 0.7 }}>
-                  PASSO {step.number}
+                  {t("step")} {step.number}
                 </div>
 
                 <h3 className="font-bold text-white mb-3" style={{ fontSize: 18 }}>
-                  {step.title}
+                  {t(`s${i + 1}title` as "s1title" | "s2title" | "s3title")}
                 </h3>
 
                 <p style={{ fontSize: 14, color: "rgba(255,255,255,0.40)", lineHeight: 1.7, marginBottom: 16 }}>
-                  {step.description}
+                  {t(`s${i + 1}desc` as "s1desc" | "s2desc" | "s3desc")}
                 </p>
 
                 <div
@@ -136,7 +139,7 @@ export function HowItWorksSection() {
                     color: "rgba(255,255,255,0.38)",
                   }}
                 >
-                  {step.detail}
+                  {t(`s${i + 1}detail` as "s1detail" | "s2detail" | "s3detail")}
                 </div>
               </div>
             ))}
