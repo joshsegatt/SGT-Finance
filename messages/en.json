@@ -1,0 +1,253 @@
+{
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "transactions": "Transactions",
+    "invoices": "Invoices",
+    "recurring": "Recurring",
+    "tax": "Tax & Compliance",
+    "clients": "Clients",
+    "accounts": "Accounts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "groups": {
+      "operations": "Operations",
+      "management": "Management",
+      "tools": "Tools"
+    },
+    "upgradePro": "Upgrade to Pro",
+    "commandCenter": "Command Center",
+    "subLabels": {
+      "print": "Print",
+      "new": "New",
+      "edit": "Edit"
+    }
+  },
+  "Dashboard": {
+    "title": "Overview",
+    "subtitle": "Control center for finances, compliance and tax visibility",
+    "kpi": {
+      "totalBalance": "Total Balance",
+      "cashReserve": "Cash Reserve",
+      "taxExposure": "Tax Exposure",
+      "overdueInvoices": "Overdue Invoices",
+      "acrossAllAccounts": "Across all accounts",
+      "savingsOnly": "Savings accounts only",
+      "effectiveRate": "Est. 6.5% effective rate",
+      "allUpToDate": "All invoices up to date",
+      "outstanding": "outstanding"
+    },
+    "cashFlow": "Cash Flow",
+    "last6Months": "Last 6 months",
+    "alerts": "Alerts",
+    "alertsNew": "{count} new",
+    "noAlerts": "No alerts",
+    "recentTransactions": "Recent Transactions",
+    "viewAll": "View all",
+    "noTransactions": "No transactions found",
+    "uncategorised": "Uncategorised"
+  },
+  "Analytics": {
+    "title": "Analytics",
+    "subtitle": "Income, expenses and category breakdown",
+    "kpi": {
+      "totalIncome": "Total Income",
+      "totalExpenses": "Total Expenses",
+      "netFlow": "Net Flow"
+    },
+    "cashFlowTitle": "Cash Flow Over Time",
+    "cashFlowSub": "Income vs expenses",
+    "categoryTitle": "Breakdown by Category",
+    "categoryAllTime": "All time",
+    "categorySummary": "Category Summary",
+    "income": "Income",
+    "expenses": "Expenses",
+    "noData": "No data"
+  },
+  "Transactions": {
+    "title": "Transactions",
+    "subtitle": "transaction found",
+    "subtitlePlural": "transactions found",
+    "exportCsv": "Export CSV",
+    "noTransactions": "No transactions found"
+  },
+  "Invoices": {
+    "title": "Invoices",
+    "subtitle": "invoice",
+    "subtitlePlural": "invoices",
+    "overdue": "overdue",
+    "newInvoice": "New Invoice",
+    "noInvoices": "No invoices found",
+    "totalLabel": "Total"
+  },
+  "Tax": {
+    "title": "Tax & Compliance",
+    "subtitle": "VAT, corporate tax, and upcoming deadlines",
+    "all": "All",
+    "upcomingDeadlines": "upcoming deadline",
+    "upcomingDeadlinesPlural": "upcoming deadlines",
+    "noDeadlines": "No deadlines",
+    "deadlinesSection": "Deadlines",
+    "vatNumber": "VAT Number",
+    "corporateTax": "Corporate Tax Rate",
+    "noTaxProfile": "No tax profile configured"
+  },
+  "Clients": {
+    "title": "Clients",
+    "subtitle": "client",
+    "subtitlePlural": "clients",
+    "noClients": "No clients found",
+    "selectClient": "Select a client to view details",
+    "contactInfo": "Contact Info",
+    "phone": "Phone",
+    "email": "Email",
+    "entity": "Entity",
+    "entities": "Entities",
+    "invoice": "Invoice",
+    "invoices": "Invoices"
+  },
+  "Accounts": {
+    "title": "Bank Accounts",
+    "subtitle": "account connected",
+    "subtitlePlural": "accounts connected",
+    "totalGBP": "Total (GBP equiv.)",
+    "noAccounts": "No accounts found",
+    "sync": "Sync",
+    "never": "Never"
+  },
+  "Reports": {
+    "title": "Reports",
+    "subtitle": "Financial summaries and CSV exports",
+    "export": "Export All Transactions ↓",
+    "cashFlow": "Cash Flow",
+    "categories": "Category Breakdown",
+    "tax": "Tax Exposure",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "netFlow": "Net Flow",
+    "last12Months": "Last 12 months",
+    "monthly12": "Monthly Cash Flow (12 months)",
+    "spendByCategory": "Spend by Category",
+    "categoryTotals": "Category Totals",
+    "noData": "No data",
+    "taxBreakdown": "Tax Exposure Breakdown",
+    "taxBreakdownSub": "Estimated liability based on total asset value",
+    "totalLiability": "Total Estimated Liability",
+    "taxDisclaimer": "This is an automated estimate for planning purposes only. Consult your accountant for accurate tax filings."
+  },
+  "Recurring": {
+    "title": "Recurring & Subscriptions",
+    "subtitle": "subscription tracked",
+    "subtitlePlural": "subscriptions tracked",
+    "monthlySpend": "Monthly Spend",
+    "annualProjection": "Annual Projection",
+    "wasteDetected": "Waste Detected",
+    "wasteValue": "Waste Value",
+    "activeSubs": "active subs",
+    "ifUnchanged": "if unchanged",
+    "flaggedSubs": "flagged subs",
+    "perMonth": "per month",
+    "noSubscriptions": "No subscriptions found",
+    "cancel": "Cancel"
+  },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account preferences",
+    "profileSection": "Profile",
+    "changePasswordSection": "Change Password",
+    "changePasswordDesc": "Update your password. You will need to enter your current password to confirm.",
+    "accountInfoSection": "Account Information",
+    "emailLabel": "Email",
+    "roleLabel": "Role",
+    "memberSince": "Member since",
+    "dangerZone": "Danger Zone",
+    "dangerDesc": "Destructive actions — contact your administrator to proceed.",
+    "deleteAccount": "Delete Account",
+    "displayName": "Display Name",
+    "namePlaceholder": "Your full name",
+    "emailReadOnly": "Email cannot be changed",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "saveSuccess": "Profile updated successfully",
+    "nameRequired": "Name must be at least 2 characters"
+  },
+  "Common": {
+    "search": "Search...",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "clients": "Clients",
+    "transactions": "Transactions",
+    "invoices": "Invoices",
+    "noResultsFor": "No results for",
+    "searchAllTransactions": "Press Enter to search all transactions →",
+    "transaction": "Transaction"
+  },
+  "Login": {
+    "title": "Welcome back",
+    "subtitle": "Enter your credentials to access the command center.",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "authenticating": "Authenticating...",
+    "noAccount": "Don't have an account?",
+    "createOne": "Create one",
+    "invalidCredentials": "Invalid credentials or account does not exist.",
+    "unexpectedError": "An unexpected error occurred. Please try again."
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "new": "new",
+    "markAllRead": "Mark all read",
+    "allCaughtUp": "All caught up",
+    "noAlertsNow": "No alerts right now",
+    "clickToView": "Click to view →",
+    "justNow": "Just now",
+    "minsAgo": "{m}m ago",
+    "hoursAgo": "{h}h ago",
+    "daysAgo": "{d}d ago"
+  },
+  "ConnectBank": {
+    "title": "Connect a Bank",
+    "selectEntity": "Select the entity to connect this bank account to.",
+    "selectProvider": "Choose your banking provider.",
+    "truelayerDesc": "UK & EU banks via Open Banking",
+    "saltedgeDesc": "5000+ banks across EU, CH & more",
+    "redirectingDesc": "Redirecting you to connect your bank\u2026",
+    "openingTitle": "Connecting\u2026",
+    "openingDesc": "You will be redirected to select and authenticate with your bank.",
+    "noEntities": "No entities found. Create one first.",
+    "failed": "Connection failed"
+  },
+  "CommandPalette": {
+    "placeholder": "Search or jump to...",
+    "noResults": "No results for",
+    "searchAll": "Press Enter to search all transactions →",
+    "sections": {
+      "navigation": "Navigation",
+      "quickActions": "Quick Actions",
+      "clients": "Clients",
+      "transactions": "Transactions",
+      "invoices": "Invoices"
+    },
+    "actions": {
+      "createInvoice": "Create Invoice",
+      "createInvoiceSub": "Open invoice creation",
+      "addClient": "Add Client",
+      "addClientSub": "Register a new client",
+      "exportTransactions": "Export Transactions CSV",
+      "exportTransactionsSub": "Download all transactions",
+      "viewAccounts": "View Bank Accounts",
+      "viewAccountsSub": "See balances and details"
+    },
+    "footer": {
+      "navigate": "navigate",
+      "select": "select",
+      "close": "close",
+      "open": "to open"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "SGT Dashboard",
+  "short_name": "SGT",
+  "description": "Premium command center for finances, compliance and tax visibility.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F6FB",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"]
+}

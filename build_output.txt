@@ -1,0 +1,554 @@
+
+> dashboard@0.1.0 build C:\Users\Joshsegatt\Desktop\dashboard
+> next build
+
+Ôû▓ Next.js 16.2.4 (Turbopack)
+- Environments: .env
+
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 10 errors:
+./src/components/topbar.tsx:232:17
+the name `Breadcrumb` is defined multiple times
+  230 | };
+  231 |
+> 232 | export function Breadcrumb() {
+      |                 ^^^^^^^^^^
+  233 |   const pathname = usePathname();
+  234 |   const segments = pathname.split("/").filter(Boolean);
+  235 |   const current = ROUTE_LABELS[segments[0] ?? ""] ?? segments[0] ?? "Dashboard";
+
+Ecmascript file had an error
+
+Import trace:
+  Server Component:
+    ./src/components/topbar.tsx
+    ./src/app/(dashboard)/layout.tsx
+
+
+./src/components/clients/clients-view.tsx:422:17
+the name `ClientsView` is defined multiple times
+  420 | }
+  421 |
+> 422 | export function ClientsView({ clients, selectedClientId }: ClientsViewProps) {
+      |                 ^^^^^^^^^^^
+  423 |   const router = useRouter();
+  424 |   const pathname = usePathname();
+  425 |   const searchParams = useSearchParams();
+
+Ecmascript file had an error
+
+Import trace:
+  Server Component:
+    ./src/components/clients/clients-view.tsx
+    ./src/app/(dashboard)/clients/page.tsx
+
+
+./src/components/topbar.tsx:219:7
+the name `ROUTE_LABELS` is defined multiple times
+  217 |
+  218 |
+> 219 | const ROUTE_LABELS: Record<string, string> = {
+      |       ^^^^^^^^^^^^
+  220 |   "": "Dashboard",
+  221 |   analytics: "Analytics",
+  222 |   transactions: "Transactions",
+
+Ecmascript file had an error
+
+Import trace:
+  Server Component:
+    ./src/components/topbar.tsx
+    ./src/app/(dashboard)/layout.tsx
+
+
+./src/app/(dashboard)/settings/page.tsx:205:31
+the name `SettingsPage` is defined multiple times
+  203 | export const metadata = { title: "Settings" };
+  204 |
+> 205 | export default async function SettingsPage() {
+      |                               ^^^^^^^^^^^^
+  206 |   const session = await auth();
+  207 |   if (!session?.user?.id) redirect("/login");
+  208 |
+
+Ecmascript file had an error
+
+
+./src/app/(dashboard)/tax/page.tsx:51:31
+the name `TaxPage` is defined multiple times
+  49 | };
+  50 |
+> 51 | export default async function TaxPage({ searchParams }: PageProps) {
+     |                               ^^^^^^^
+  52 |   const params = await searchParams;
+  53 |   const [entities, allEntities, t] = await Promise.all([getTaxSummary(), getEntities(), ge...
+  54 |
+
+Ecmascript file had an error
+
+
+./src/components/topbar.tsx:251:17
+the name `TopbarSearch` is defined multiple times
+  249 | }
+  250 |
+> 251 | export function TopbarSearch({ placeholder }: { placeholder: string }) {
+      |                 ^^^^^^^^^^^^
+  252 |   const router = useRouter();
+  253 |   const [, startTransition] = useTransition();
+  254 |
+
+Ecmascript file had an error
+
+Import trace:
+  Server Component:
+    ./src/components/topbar.tsx
+    ./src/app/(dashboard)/layout.tsx
+
+
+./src/app/(dashboard)/settings/page.tsx:205:1
+the name `default` is exported multiple times
+  203 | export const metadata = { title: "Settings" };
+  204 |
+> 205 | export default async function SettingsPage() {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 206 |   const session = await auth();
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 207 |   if (!session?.user?.id) redirect("/login");
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 208 |
+      | ^
+> 209 |   const [user, t] = await Promise.all([
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 210 |     getUserById(session.user.id),
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 211 |     getTranslations("Settings"),
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 212 |   ]);
+      | ^^^^^
+> 213 |   if (!user) redirect("/login");
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 214 |
+      | ^
+> 215 |   return (
+      | ^^^^^^^^^^
+> 216 |     <div className="space-y-8 max-w-2xl">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 217 |       <div>
+      | ^^^^^^^^^^^
+> 218 |         <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("title")}</h1>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 219 |         <p className="text-muted-foreground mt-1.5">{t("subtitle")}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 220 |       </div>
+      | ^^^^^^^^^^^^
+> 221 |
+      | ^
+> 222 |       {/* Profile */}
+      | ^^^^^^^^^^^^^^^^^^^^^
+> 223 |       <div className="bg-card rounded-xl border border-border p-6 panel-shadow">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 224 |         <h2 className="text-sm font-semibold text-foreground mb-5">{t("profileSection")}<...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 225 |         <ProfileForm user={{ id: user.id, name: user.name ?? "", email: user.email ?? "",...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 226 |       </div>
+      | ^^^^^^^^^^^^
+> 227 |
+      | ^
+> 228 |       {/* Change Password */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 229 |       <div className="bg-card rounded-xl border border-border p-6 panel-shadow">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 230 |         <div className="mb-5">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 231 |           <h2 className="text-sm font-semibold text-foreground">{t("changePasswordSection...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 232 |           <p className="text-xs text-muted-foreground mt-1">{t("changePasswordDesc")}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 233 |         </div>
+      | ^^^^^^^^^^^^^^
+> 234 |         <ChangePasswordForm />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 235 |       </div>
+      | ^^^^^^^^^^^^
+> 236 |
+      | ^
+> 237 |       {/* Account Info */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 238 |       <div className="bg-card rounded-xl border border-border p-6 panel-shadow space-y-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 239 |         <h2 className="text-sm font-semibold text-foreground mb-5">{t("accountInfoSection...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 240 |         <div className="space-y-3">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 241 |           <div className="flex justify-between items-center py-1.5 border-b border-border...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 242 |             <span className="text-sm text-muted-foreground">{t("emailLabel")}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 243 |             <span className="text-sm font-medium text-foreground">{user.email}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 244 |           </div>
+      | ^^^^^^^^^^^^^^^^
+> 245 |           <div className="flex justify-between items-center py-1.5 border-b border-border...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 246 |             <span className="text-sm text-muted-foreground">{t("roleLabel")}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 247 |             <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary ...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 248 |               {user.role}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 249 |             </span>
+      | ^^^^^^^^^^^^^^^^^^^
+> 250 |           </div>
+      | ^^^^^^^^^^^^^^^^
+> 251 |           <div className="flex justify-between items-center py-1.5">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 252 |             <span className="text-sm text-muted-foreground">{t("memberSince")}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 253 |             <span className="text-sm font-medium text-foreground">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 254 |               {new Date(user.createdAt).toLocaleDateString("en-GB", { year: "numeric", mo...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 255 |             </span>
+      | ^^^^^^^^^^^^^^^^^^^
+> 256 |           </div>
+      | ^^^^^^^^^^^^^^^^
+> 257 |         </div>
+      | ^^^^^^^^^^^^^^
+> 258 |       </div>
+      | ^^^^^^^^^^^^
+> 259 |
+      | ^
+> 260 |       {/* Danger Zone */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 261 |       <div className="bg-card rounded-xl border border-destructive/30 p-6 panel-shadow">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 262 |         <h2 className="text-sm font-semibold text-destructive mb-2">{t("dangerZone")}</h2>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 263 |         <p className="text-xs text-muted-foreground mb-4">{t("dangerDesc")}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 264 |         <button
+      | ^^^^^^^^^^^^^^^
+> 265 |           disabled
+      | ^^^^^^^^^^^^^^^^^^
+> 266 |           className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destr...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 267 |         >
+      | ^^^^^^^^^
+> 268 |           {t("deleteAccount")}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 269 |         </button>
+      | ^^^^^^^^^^^^^^^^^
+> 270 |       </div>
+      | ^^^^^^^^^^^^
+> 271 |     </div>
+      | ^^^^^^^^^^
+> 272 |   );
+      | ^^^^
+> 273 | }
+      | ^
+  274 |
+
+Ecmascript file had an error
+
+
+./src/app/(dashboard)/tax/page.tsx:51:1
+the name `default` is exported multiple times
+   49 | };
+   50 |
+>  51 | export default async function TaxPage({ searchParams }: PageProps) {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  52 |   const params = await searchParams;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  53 |   const [entities, allEntities, t] = await Promise.all([getTaxSummary(), getEntities(), g...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  54 |
+      | ^
+>  55 |   const filtered = params.entityId
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  56 |     ? entities.filter((e) => e.id === params.entityId)
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  57 |     : entities;
+      | ^^^^^^^^^^^^^^^
+>  58 |
+      | ^
+>  59 |   const allDeadlines = filtered.flatMap((e) => e.taxProfile?.deadlines ?? []);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  60 |   const upcomingCount = allDeadlines.filter((d) => d.status === "UPCOMING").length;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  61 |
+      | ^
+>  62 |   return (
+      | ^^^^^^^^^^
+>  63 |     <div className="space-y-8">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  64 |       <div className="flex items-start justify-between gap-4 flex-wrap">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  65 |         <div>
+      | ^^^^^^^^^^^^^
+>  66 |           <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("title")}<...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  67 |           <p className="text-muted-foreground mt-1.5">{t("subtitle")}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  68 |         </div>
+      | ^^^^^^^^^^^^^^
+>  69 |         <div className="flex gap-2 flex-wrap">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  70 |           <a
+      | ^^^^^^^^^^^^
+>  71 |             href="/tax"
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+>  72 |             className={`text-xs px-3 py-1.5 rounded-full border ${!params.entityId ? "bg-...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  73 |           >
+      | ^^^^^^^^^^^
+>  74 |             {t("all")}
+      | ^^^^^^^^^^^^^^^^^^^^^^
+>  75 |           </a>
+      | ^^^^^^^^^^^^^^
+>  76 |           {allEntities.map((e) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  77 |             <a
+      | ^^^^^^^^^^^^^^
+>  78 |               key={e.id}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+>  79 |               href={`/tax?entityId=${e.id}`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  80 |               className={`text-xs px-3 py-1.5 rounded-full border ${params.entityId === e...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  81 |             >
+      | ^^^^^^^^^^^^^
+>  82 |               {e.name}
+      | ^^^^^^^^^^^^^^^^^^^^^^
+>  83 |             </a>
+      | ^^^^^^^^^^^^^^^^
+>  84 |           ))}
+      | ^^^^^^^^^^^^^
+>  85 |         </div>
+      | ^^^^^^^^^^^^^^
+>  86 |       </div>
+      | ^^^^^^^^^^^^
+>  87 |
+      | ^
+>  88 |       {/* Tax profiles */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  89 |       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  90 |         {filtered.length === 0 ? (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  91 |           <div className="col-span-3 text-center text-muted-foreground py-12">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  92 |             No tax profiles found
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  93 |           </div>
+      | ^^^^^^^^^^^^^^^^
+>  94 |         ) : (
+      | ^^^^^^^^^^^^^
+>  95 |           filtered.map((entity) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  96 |             <div key={entity.id} className="bg-card/80 rounded-xl border border-border p-...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  97 |               <div>
+      | ^^^^^^^^^^^^^^^^^^^
+>  98 |                 <p className="text-sm font-semibold text-foreground">{entity.name}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  99 |                 <p className="text-xs text-muted-foreground mt-0.5">{entity.country} ┬À {e...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 100 |               </div>
+      | ^^^^^^^^^^^^^^^^^^^^
+> 101 |               {entity.taxProfile ? (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 102 |                 <div className="space-y-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 103 |                   {entity.taxProfile.vatNumber && (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 104 |                     <div className="flex justify-between">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 105 |                       <span className="text-xs text-muted-foreground">{t("vatNumber")}</s...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 106 |                       <span className="text-xs font-mono font-medium text-foreground">{en...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 107 |                     </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 108 |                   )}
+      | ^^^^^^^^^^^^^^^^^^^^
+> 109 |                   <div className="flex justify-between">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 110 |                     <span className="text-xs text-muted-foreground">{t("corporateTax")}</...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 111 |                     <span className="text-xs font-semibold text-foreground">{entity.taxPr...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 112 |                   </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 113 |                   <div className="flex justify-between">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 114 |                     <span className="text-xs text-muted-foreground">{t("deadlinesSection"...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 115 |                     <span className="text-xs font-semibold text-foreground">{entity.taxPr...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 116 |                   </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 117 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^
+> 118 |               ) : (
+      | ^^^^^^^^^^^^^^^^^^^
+> 119 |                 <p className="text-xs text-muted-foreground">{t("noTaxProfile")}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 120 |               )}
+      | ^^^^^^^^^^^^^^^^
+> 121 |             </div>
+      | ^^^^^^^^^^^^^^^^^^
+> 122 |           ))
+      | ^^^^^^^^^^^^
+> 123 |         )}
+      | ^^^^^^^^^^
+> 124 |       </div>
+      | ^^^^^^^^^^^^
+> 125 |
+      | ^
+> 126 |       {/* Deadlines */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 127 |       <div>
+      | ^^^^^^^^^^^
+> 128 |         <h2 className="text-sm font-semibold text-foreground mb-3">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 129 |           Tax Deadlines
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 130 |           {upcomingCount > 0 && (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 131 |             <span className="ml-2 text-xs font-normal text-amber-400">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 132 |               ┬À {upcomingCount} {upcomingCount !== 1 ? t("upcomingDeadlinesPlural") : t("...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 133 |             </span>
+      | ^^^^^^^^^^^^^^^^^^^
+> 134 |           )}
+      | ^^^^^^^^^^^^
+> 135 |         </h2>
+      | ^^^^^^^^^^^^^
+> 136 |         <div className="bg-card/80 rounded-xl border border-border overflow-hidden shadow...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 137 |           <Table>
+      | ^^^^^^^^^^^^^^^^^
+> 138 |             <TableHeader>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 139 |               <TableRow className="border-border/50 hover:bg-transparent">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 140 |                 <TableHead>Title</TableHead>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 141 |                 <TableHead>Type</TableHead>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 142 |                 <TableHead>Due Date</TableHead>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 143 |                 <TableHead>Status</TableHead>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 144 |               </TableRow>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 145 |             </TableHeader>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 146 |             <TableBody>
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |               {allDeadlines.length === 0 ? (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 148 |                 <TableRow>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 149 |                   <TableCell colSpan={4} className="text-center py-12 text-muted-foregrou...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 150 |                     No deadlines found
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 151 |                   </TableCell>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 152 |                 </TableRow>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |               ) : (
+      | ^^^^^^^^^^^^^^^^^^^
+> 154 |                 [...allDeadlines]
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 155 |                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 156 |                   .map((d) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 157 |                     <TableRow key={d.id} className="border-border/30 hover:bg-muted/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 158 |                       <TableCell className="font-medium">{d.title}</TableCell>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 159 |                       <TableCell className="text-muted-foreground text-xs">{d.type}</Tabl...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 160 |                       <TableCell className="text-muted-foreground text-xs">{formatDate(d....
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 161 |                       <TableCell>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 162 |                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${...
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 163 |                           {d.status.charAt(0) + d.status.slice(1).toLowerCase()}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 164 |                         </span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 165 |                       </TableCell>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |                     </TableRow>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |                   ))
+      | ^^^^^^^^^^^^^^^^^^^^
+> 168 |               )}
+      | ^^^^^^^^^^^^^^^^
+> 169 |             </TableBody>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |           </Table>
+      | ^^^^^^^^^^^^^^^^^^
+> 171 |         </div>
+      | ^^^^^^^^^^^^^^
+> 172 |       </div>
+      | ^^^^^^^^^^^^
+> 173 |     </div>
+      | ^^^^^^^^^^
+> 174 |   );
+      | ^^^^
+> 175 | }
+      | ^
+  176 |
+  177 |
+
+Ecmascript file had an error
+
+
+./src/app/(dashboard)/settings/page.tsx:203:14
+the name `metadata` is defined multiple times
+  201 |
+  202 |
+> 203 | export const metadata = { title: "Settings" };
+      |              ^^^^^^^^
+  204 |
+  205 | export default async function SettingsPage() {
+  206 |   const session = await auth();
+
+Ecmascript file had an error
+
+
+./src/app/(dashboard)/tax/page.tsx:39:14
+the name `metadata` is defined multiple times
+  37 |
+  38 |
+> 39 | export const metadata = { title: "Tax" };
+     |              ^^^^^^^^
+  40 |
+  41 | interface PageProps {
+  42 |   searchParams: Promise<{ entityId?: string }>;
+
+Ecmascript file had an error
+
+
+    at <unknown> (./src/components/topbar.tsx:232:17)
+    at <unknown> (./src/components/clients/clients-view.tsx:422:17)
+    at <unknown> (./src/components/topbar.tsx:219:7)
+    at <unknown> (./src/app/(dashboard)/settings/page.tsx:205:31)
+    at <unknown> (./src/app/(dashboard)/tax/page.tsx:51:31)
+    at <unknown> (./src/components/topbar.tsx:251:17)
+    at <unknown> (./src/app/(dashboard)/settings/page.tsx:205:1)
+    at <unknown> (./src/app/(dashboard)/tax/page.tsx:51:1)
+    at <unknown> (./src/app/(dashboard)/settings/page.tsx:203:14)
+    at <unknown> (./src/app/(dashboard)/tax/page.tsx:39:14)
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

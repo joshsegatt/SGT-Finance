@@ -1,0 +1,253 @@
+{
+  "Navigation": {
+    "dashboard": "Tableau de bord",
+    "analytics": "Analytique",
+    "transactions": "Transactions",
+    "invoices": "Factures",
+    "recurring": "Récurrents",
+    "tax": "Fiscal & Conformité",
+    "clients": "Clients",
+    "accounts": "Comptes",
+    "reports": "Rapports",
+    "settings": "Paramètres",
+    "groups": {
+      "operations": "Opérations",
+      "management": "Gestion",
+      "tools": "Outils"
+    },
+    "upgradePro": "Passer à Pro",
+    "commandCenter": "Centre de Commande",
+    "subLabels": {
+      "print": "Imprimer",
+      "new": "Nouveau",
+      "edit": "Modifier"
+    }
+  },
+  "Dashboard": {
+    "title": "Vue d'ensemble",
+    "subtitle": "Centre de contrôle pour les finances, la conformité et la visibilité fiscale",
+    "kpi": {
+      "totalBalance": "Solde Total",
+      "cashReserve": "Réserve de Trésorerie",
+      "taxExposure": "Exposition Fiscale",
+      "overdueInvoices": "Factures en Retard",
+      "acrossAllAccounts": "Sur tous les comptes",
+      "savingsOnly": "Comptes d'épargne uniquement",
+      "effectiveRate": "Taux effectif est. 6,5%",
+      "allUpToDate": "Toutes les factures à jour",
+      "outstanding": "en attente"
+    },
+    "cashFlow": "Flux de Trésorerie",
+    "last6Months": "6 derniers mois",
+    "alerts": "Alertes",
+    "alertsNew": "{count} nouvelles",
+    "noAlerts": "Pas d'alertes",
+    "recentTransactions": "Transactions Récentes",
+    "viewAll": "Voir tout",
+    "noTransactions": "Aucune transaction trouvée",
+    "uncategorised": "Non catégorisé"
+  },
+  "Analytics": {
+    "title": "Analytique",
+    "subtitle": "Revenus, dépenses et répartition par catégorie",
+    "kpi": {
+      "totalIncome": "Revenu Total",
+      "totalExpenses": "Dépenses Totales",
+      "netFlow": "Flux Net"
+    },
+    "cashFlowTitle": "Flux de Trésorerie dans le Temps",
+    "cashFlowSub": "Revenus vs dépenses",
+    "categoryTitle": "Répartition par Catégorie",
+    "categoryAllTime": "Toute la période",
+    "categorySummary": "Résumé par Catégorie",
+    "income": "Revenu",
+    "expenses": "Dépenses",
+    "noData": "Aucune donnée"
+  },
+  "Transactions": {
+    "title": "Transactions",
+    "subtitle": "transaction trouvée",
+    "subtitlePlural": "transactions trouvées",
+    "exportCsv": "Exporter CSV",
+    "noTransactions": "Aucune transaction trouvée"
+  },
+  "Invoices": {
+    "title": "Factures",
+    "subtitle": "facture",
+    "subtitlePlural": "factures",
+    "overdue": "en retard",
+    "newInvoice": "Nouvelle Facture",
+    "noInvoices": "Aucune facture trouvée",
+    "totalLabel": "Total"
+  },
+  "Tax": {
+    "title": "Fiscal & Conformité",
+    "subtitle": "TVA, impôt sur les sociétés et échéances à venir",
+    "all": "Tous",
+    "upcomingDeadlines": "échéance à venir",
+    "upcomingDeadlinesPlural": "échéances à venir",
+    "noDeadlines": "Aucune échéance",
+    "deadlinesSection": "Échéances",
+    "vatNumber": "Numéro de TVA",
+    "corporateTax": "Taux d'Imposition des Sociétés",
+    "noTaxProfile": "Aucun profil fiscal configuré"
+  },
+  "Clients": {
+    "title": "Clients",
+    "subtitle": "client",
+    "subtitlePlural": "clients",
+    "noClients": "Aucun client trouvé",
+    "selectClient": "Sélectionnez un client pour voir les détails",
+    "contactInfo": "Coordonnées",
+    "phone": "Téléphone",
+    "email": "Email",
+    "entity": "Entité",
+    "entities": "Entités",
+    "invoice": "Facture",
+    "invoices": "Factures"
+  },
+  "Accounts": {
+    "title": "Comptes Bancaires",
+    "subtitle": "compte connecté",
+    "subtitlePlural": "comptes connectés",
+    "totalGBP": "Total (équiv. GBP)",
+    "noAccounts": "Aucun compte trouvé",
+    "sync": "Synchroniser",
+    "never": "Jamais"
+  },
+  "Reports": {
+    "title": "Rapports",
+    "subtitle": "Résumés financiers et exports CSV",
+    "export": "Exporter Toutes les Transactions ↓",
+    "cashFlow": "Flux de Trésorerie",
+    "categories": "Répartition par Catégorie",
+    "tax": "Exposition Fiscale",
+    "totalIncome": "Revenu Total",
+    "totalExpenses": "Dépenses Totales",
+    "netFlow": "Flux Net",
+    "last12Months": "12 derniers mois",
+    "monthly12": "Flux de Trésorerie Mensuel (12 mois)",
+    "spendByCategory": "Dépenses par Catégorie",
+    "categoryTotals": "Totaux par Catégorie",
+    "noData": "Aucune donnée",
+    "taxBreakdown": "Répartition de l'Exposition Fiscale",
+    "taxBreakdownSub": "Passif estimé basé sur la valeur totale des actifs",
+    "totalLiability": "Passif Total Estimé",
+    "taxDisclaimer": "Il s'agit d'une estimation automatisée à des fins de planification uniquement. Consultez votre comptable pour des déclarations fiscales précises."
+  },
+  "Recurring": {
+    "title": "Récurrents & Abonnements",
+    "subtitle": "abonnement suivi",
+    "subtitlePlural": "abonnements suivis",
+    "monthlySpend": "Dépenses Mensuelles",
+    "annualProjection": "Projection Annuelle",
+    "wasteDetected": "Gaspillage Détecté",
+    "wasteValue": "Valeur du Gaspillage",
+    "activeSubs": "abonnements actifs",
+    "ifUnchanged": "si inchangé",
+    "flaggedSubs": "abonnements signalés",
+    "perMonth": "par mois",
+    "noSubscriptions": "Aucun abonnement trouvé",
+    "cancel": "Annuler"
+  },
+  "Settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez les préférences de votre compte",
+    "profileSection": "Profil",
+    "changePasswordSection": "Changer le Mot de Passe",
+    "changePasswordDesc": "Mettez à jour votre mot de passe. Vous devrez saisir votre mot de passe actuel pour confirmer.",
+    "accountInfoSection": "Informations du Compte",
+    "emailLabel": "Email",
+    "roleLabel": "Rôle",
+    "memberSince": "Membre depuis",
+    "dangerZone": "Zone Dangereuse",
+    "dangerDesc": "Actions destructrices — contactez votre administrateur pour continuer.",
+    "deleteAccount": "Supprimer le Compte",
+    "displayName": "Nom d'affichage",
+    "namePlaceholder": "Votre nom complet",
+    "emailReadOnly": "L'email ne peut pas être modifié",
+    "saveChanges": "Enregistrer les modifications",
+    "saving": "Enregistrement...",
+    "saveSuccess": "Profil mis à jour avec succès",
+    "nameRequired": "Le nom doit comporter au moins 2 caract\u00e8res"
+  },
+  "Login": {
+    "title": "Bon retour",
+    "subtitle": "Saisissez vos identifiants pour acc\u00e9der au centre de commande.",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oubli\u00e9 ?",
+    "signIn": "Se connecter",
+    "authenticating": "Authentification...",
+    "noAccount": "Pas encore de compte ?",
+    "createOne": "Cr\u00e9er un compte",
+    "invalidCredentials": "Identifiants invalides ou compte inexistant.",
+    "unexpectedError": "Une erreur inattendue s'est produite. Veuillez r\u00e9essayer."
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "new": "nouvelle(s)",
+    "markAllRead": "Tout marquer comme lu",
+    "allCaughtUp": "Tout \u00e0 jour",
+    "noAlertsNow": "Aucune alerte pour l'instant",
+    "clickToView": "Cliquer pour voir \u2192",
+    "justNow": "\u00c0 l'instant",
+    "minsAgo": "il y a {m}min",
+    "hoursAgo": "il y a {h}h",
+    "daysAgo": "il y a {d}j"
+  },
+  "ConnectBank": {
+    "title": "Connecter une banque",
+    "selectEntity": "S\u00e9lectionnez l'entit\u00e9 \u00e0 laquelle connecter ce compte bancaire.",
+    "selectProvider": "Choisissez votre fournisseur bancaire.",
+    "truelayerDesc": "Banques UK et EU via Open Banking",
+    "saltedgeDesc": "Plus de 5000 banques en UE, CH et plus",
+    "redirectingDesc": "Redirection vers votre banque\u2026",
+    "openingTitle": "Connexion\u2026",
+    "openingDesc": "Vous serez redirig\u00e9 pour s\u00e9lectionner et authentifier votre banque.",
+    "noEntities": "Aucune entit\u00e9 trouv\u00e9e. Cr\u00e9ez-en une d'abord.",
+    "failed": "\u00c9chec de la connexion"
+  },
+  "CommandPalette": {
+    "placeholder": "Rechercher ou naviguer...",
+    "noResults": "Aucun r\u00e9sultat pour",
+    "searchAll": "Appuyez sur Entr\u00e9e pour rechercher toutes les transactions \u2192",
+    "sections": {
+      "navigation": "Navigation",
+      "quickActions": "Actions rapides",
+      "clients": "Clients",
+      "transactions": "Transactions",
+      "invoices": "Factures"
+    },
+    "actions": {
+      "createInvoice": "Cr\u00e9er une facture",
+      "createInvoiceSub": "Ouvrir la cr\u00e9ation de facture",
+      "addClient": "Ajouter un client",
+      "addClientSub": "Enregistrer un nouveau client",
+      "exportTransactions": "Exporter CSV des transactions",
+      "exportTransactionsSub": "T\u00e9l\u00e9charger toutes les transactions",
+      "viewAccounts": "Voir les comptes bancaires",
+      "viewAccountsSub": "Voir les soldes et les d\u00e9tails"
+    },
+    "footer": {
+      "navigate": "naviguer",
+      "select": "s\u00e9lectionner",
+      "close": "fermer",
+      "open": "pour ouvrir"
+    }
+  },
+  "Common": {
+    "search": "Rechercher...",
+    "language": "Langue",
+    "theme": "Th\u00e8me",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Syst\u00e8me",
+    "clients": "Clients",
+    "transactions": "Transactions",
+    "invoices": "Factures",
+    "noResultsFor": "Aucun r\u00e9sultat pour",
+    "searchAllTransactions": "Appuyez sur Entr\u00e9e pour rechercher toutes les transactions \u2192",
+    "transaction": "Transaction"
+  }
+}
