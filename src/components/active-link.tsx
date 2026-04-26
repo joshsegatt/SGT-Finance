@@ -15,7 +15,7 @@ type NavGroup = { labelKey?: string; items: NavItem[] };
 const NAV_GROUPS: NavGroup[] = [
   {
     items: [
-      { key: "dashboard", href: "/", icon: LayoutDashboard },
+      { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
       { key: "analytics", href: "/analytics", icon: PieChart },
     ],
   },
@@ -58,7 +58,7 @@ export function SidebarNav() {
             </div>
           )}
           {group.items.map(({ key, href, icon: Icon }) => {
-            const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+            const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
             return (
               <Link
                 key={key}
