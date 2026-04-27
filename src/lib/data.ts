@@ -427,8 +427,8 @@ export async function getAccounts(userId: string) {
 
 // ─── Reports ─────────────────────────────────────────────────────────────────
 
-export async function getCashFlowReport(months: number = 12) {
-  return getMonthlyTransactions(months);
+export async function getCashFlowReport(userId: string, months: number = 12) {
+  return getMonthlyTransactions(userId, months);
 }
 
 export async function getBurnRateStats(userId: string) {

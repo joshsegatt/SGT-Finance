@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type") ?? "cashflow";
 
   if (type === "categories") {
-    const data = await getCategoryReport();
+    const data = await getCategoryReport(session.user.id);
     const rows = [
       ["Category", "Income (GBP)", "Expenses (GBP)", "Net (GBP)"],
       ...data.map((r) => [
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
   // Default: cashflow
   const months = parseInt(searchParams.get("months") ?? "12", 10);
-  const data = await getCashFlowReport(months);
+  const data = await getCashFlowReport(session.user.id, months);
   const rows = [
     ["Month", "Income (GBP)", "Expenses (GBP)", "Net (GBP)"],
     ...data.map((r) => [

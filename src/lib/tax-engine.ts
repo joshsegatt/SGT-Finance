@@ -105,7 +105,7 @@ export async function calculateEntityTaxProvision(
               taxRelevant: true,
               date: { gte: startOfQuarter(new Date()) },
             },
-            select: { amount: true, currency: true, scope: true },
+            select: { amount: true, currency: true, scope: true } as any,
           },
         },
       },
@@ -118,32 +118,32 @@ export async function calculateEntityTaxProvision(
     amount * (fx[currency] ?? 1);
 
   // Only BUSINESS-scoped transactions count for tax
-  const businessTxs = entity.bankAccounts.flatMap((acc) =>
-    acc.transactions.filter((tx) => {
+  const businessTxs = (entity as any).bankAccounts.flatMap((acc: any) =>
+    acc.transactions.filter((tx: any) => {
       // Transaction.scope overrides Entity.scope
-      const scope = tx.scope ?? entity.scope;
+      const scope = tx.scope ?? (entity as any).scope;
       return scope === "BUSINESS";
     }),
   );
 
   const quarterIncome = businessTxs
-    .filter((t) => t.amount > 0)
-    .reduce((s, t) => s + toGbp(t.amount, t.currency), 0);
+    .filter((t: any) => t.amount > 0)
+    .reduce((s: number, t: any) => s + toGbp(t.amount, t.currency), 0);
 
   const quarterExpenses = businessTxs
-    .filter((t) => t.amount < 0)
-    .reduce((s, t) => s + toGbp(Math.abs(t.amount), t.currency), 0);
+    .filter((t: any) => t.amount < 0)
+    .reduce((s: number, t: any) => s + toGbp(Math.abs(t.amount), t.currency), 0);
 
   const taxableProfit = Math.max(0, quarterIncome - quarterExpenses);
 
   // Resolve rates: TaxProfile > country default > 0
   const corporateTaxRate =
-    entity.taxProfile?.corporateTaxRate ??
+    (entity as any).taxProfile?.corporateTaxRate ??
     DEFAULT_CORP_TAX[entity.country] ??
     0;
 
   const vatRate =
-    entity.taxProfile?.vatRate ?? DEFAULT_VAT[entity.country] ?? 0;
+    (entity as any).taxProfile?.vatRate ?? DEFAULT_VAT[entity.country] ?? 0;
 
   const corporateTaxDue = taxableProfit * (corporateTaxRate / 100);
 
@@ -153,7 +153,7 @@ export async function calculateEntityTaxProvision(
   const vatPayable = Math.max(0, vatCollected - vatDeductible);
 
   const totalTaxExposure = corporateTaxDue + vatPayable;
-  const provisionedAmount = entity.taxProfile?.provisionedAmount ?? 0;
+  const provisionedAmount = (entity as any).taxProfile?.provisionedAmount ?? 0;
   const provisionedPct =
     totalTaxExposure > 0
       ? Math.min(100, Math.round((provisionedAmount / totalTaxExposure) * 100))
@@ -168,7 +168,7 @@ export async function calculateEntityTaxProvision(
     entityId: entity.id,
     entityName: entity.name,
     currency: entity.currency,
-    taxRegime: entity.taxProfile?.taxRegime ?? null,
+    taxRegime: (entity as any).taxProfile?.taxRegime ?? null,
     quarterIncome,
     quarterExpenses,
     taxableProfit,
@@ -190,9 +190,9 @@ export async function calculateEntityTaxProvision(
  * This is the function `getDashboardKPIs()` should call instead of
  * the current hardcoded `totalBalance * 0.065`.
  */
-export async function getAggregatedTaxSummary(): Promise<AggregatedTaxSummary> {
+export async function getAggregatedTaxSummary(userId: string): Promise<AggregatedTaxSummary> {
   const businessEntities = await db.entity.findMany({
-    where: { scope: "BUSINESS" },
+    where: { userId, scope: "BUSINESS" } as any,
     select: { id: true },
   });
 
@@ -244,8 +244,8 @@ export async function getAggregatedTaxSummary(): Promise<AggregatedTaxSummary> {
  * Quick accessor: returns the real tax exposure number for the dashboard KPI.
  * Drop-in replacement for `totalBalance * 0.065`.
  */
-export async function getRealTaxExposure(): Promise<number> {
-  const summary = await getAggregatedTaxSummary();
+export async function getRealTaxExposure(userId: string): Promise<number> {
+  const summary = await getAggregatedTaxSummary(userId);
   return summary.totals.totalExposure;
 }
 
@@ -259,7 +259,7 @@ export async function updateTaxProvision(
 ): Promise<void> {
   await db.taxProfile.update({
     where: { entityId },
-    data: { provisionedAmount: amount },
+    data: { provisionedAmount: amount } as any,
   });
 }
 
@@ -277,11 +277,11 @@ export interface FinancialMix {
  * Calculates the Business vs Personal split using Entity.scope.
  * All balances are converted to GBP.
  */
-export async function getFinancialMix(): Promise<FinancialMix> {
+export async function getFinancialMix(userId: string): Promise<FinancialMix> {
   const [accounts, fx] = await Promise.all([
     db.bankAccount.findMany({
-      include: { entity: { select: { scope: true } } },
-      where: { balance: { not: 0 } },
+      include: { entity: { select: { scope: true } as any } },
+      where: { entity: { userId } as any, balance: { not: 0 } },
     }),
     getFxRates(),
   ]);
@@ -291,7 +291,7 @@ export async function getFinancialMix(): Promise<FinancialMix> {
 
   for (const acc of accounts) {
     const gbp = acc.balance * (fx[acc.currency] ?? 1);
-    if (acc.entity.scope === "BUSINESS") {
+    if ((acc as any).entity.scope === "BUSINESS") {
       business += gbp;
     } else {
       personal += gbp;

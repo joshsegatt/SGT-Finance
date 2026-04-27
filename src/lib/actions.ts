@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
 
 import { createAuditLog } from "./audit";
@@ -353,7 +354,7 @@ export async function regenerateApiKey() {
   
   await db.user.update({
     where: { id: session.user.id },
-    data: { apiKey: newKey },
+    data: { apiKey: newKey } as any,
   });
 
   await createAuditLog(session.user.id, "REGENERATE_API_KEY", { maskedKey: "sgt_***" + newKey.slice(-4) });
@@ -371,14 +372,14 @@ export async function updateCustomLogo(logoUrl: string | null) {
   // we might want it on the User or a dedicated Branding model.
   // Given the earlier prompt: "Implement a field customLogoUrl in TaxProfile"
   const profile = await db.taxProfile.findFirst({
-    where: { entity: { userId: session.user.id } }
+    where: { entity: { userId: session.user.id } } as any
   });
 
   if (!profile) throw new Error("No tax profile found to attach logo");
 
   await db.taxProfile.update({
     where: { id: profile.id },
-    data: { customLogoUrl: logoUrl },
+    data: { customLogoUrl: logoUrl } as any,
   });
 
   await createAuditLog(session.user.id, "UPDATE_WHITE_LABEL", { hasLogo: !!logoUrl });
@@ -401,7 +402,7 @@ export async function preCheckLogin(raw: any) {
     return { success: false, error: "Invalid credentials" };
   }
 
-  if (user.twoFactorEnabled) {
+  if ((user as any).twoFactorEnabled) {
     const { sendMfaCode } = await import("./mfa");
     await sendMfaCode(user.id, user.email!);
     return { success: true, mfaRequired: true, userId: user.id };

@@ -27,13 +27,16 @@ function periodToMonths(period?: string): number {
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
 import { hasFeatureAccess } from "@/lib/plans";
 import { UpgradeRequired } from "@/components/upgrade-required";
 import { Plan } from "@prisma/client";
 
 export default async function AnalyticsPage({ searchParams }: PageProps) {
   const session = await auth();
-  const user = session?.user?.id ? await db.user.findUnique({ where: { id: session.user.id } }) : null;
+  if (!session?.user?.id) redirect("/login");
+
+  const user = await db.user.findUnique({ where: { id: session.user.id } });
   const currentPlan = user?.plan ?? Plan.FREE;
 
   if (!hasFeatureAccess(currentPlan, "analytics")) {
@@ -44,11 +47,11 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
   const months = periodToMonths(params.period);
 
   const [cashFlow, categoryData, entities, burnStats, topClients, t] = await Promise.all([
-    getCashFlowReport(months),
-    getCategoryReport(),
-    getEntities(),
-    getBurnRateStats(),
-    getTopClientsByRevenue(5),
+    getCashFlowReport(session.user.id, months),
+    getCategoryReport(session.user.id),
+    getEntities(session.user.id),
+    getBurnRateStats(session.user.id),
+    getTopClientsByRevenue(session.user.id, 5),
     getTranslations("Analytics"),
   ]);
 
