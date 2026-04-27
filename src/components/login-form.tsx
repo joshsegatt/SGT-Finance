@@ -10,11 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 
+import { preCheckLogin } from "@/lib/actions";
+import { VerifyMfa } from "./verify-mfa";
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfaData, setMfaData] = useState<{ userId: string } | null>(null);
   const router = useRouter();
   const t = useTranslations("Login");
 
@@ -24,24 +28,55 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (res?.error) {
-        setError(t("invalidCredentials"));
-      } else {
-        router.push("/");
-        router.refresh();
+      // Step 1: Pre-check MFA
+      const check = await preCheckLogin({ email, password });
+      if (!check.success) {
+        setError(check.error || t("invalidCredentials"));
+        setLoading(false);
+        return;
       }
+
+      if (check.mfaRequired && check.userId) {
+        setMfaData({ userId: check.userId });
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Normal Login
+      await performSignIn(email, password);
     } catch (err) {
       setError(t("unexpectedError"));
-    } finally {
       setLoading(false);
     }
   };
+
+  const performSignIn = async (email: string, password?: string, mfaToken?: string) => {
+    setLoading(true);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password: password || "",
+      mfaToken: mfaToken || "",
+    });
+
+    if (res?.error) {
+      setError(t("invalidCredentials"));
+      setLoading(false);
+    } else {
+      router.push("/");
+      router.refresh();
+    }
+  };
+
+  if (mfaData) {
+    return (
+      <VerifyMfa 
+        userId={mfaData.userId} 
+        onSuccess={(token) => performSignIn(email, undefined, token)}
+        onCancel={() => setMfaData(null)}
+      />
+    );
+  }
 
   return (
     <Card className="w-full max-w-md bg-card/60 backdrop-blur border-border/50 shadow-2xl relative z-10">

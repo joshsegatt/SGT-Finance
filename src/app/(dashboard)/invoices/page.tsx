@@ -1,5 +1,5 @@
 import { getInvoices, getClients, getEntities, getInvoiceAging } from "@/lib/data";
-import { InvoicesTable } from "@/components/invoices/invoices-table";
+import { InvoiceViewWrapper } from "@/components/invoices/invoice-view-wrapper";
 import { CreateInvoiceButton } from "@/components/invoices/create-invoice-button";
 import { InvoiceAgingPanel } from "@/components/invoices/invoice-aging-panel";
 import { db } from "@/lib/db";
@@ -14,8 +14,14 @@ interface PageProps {
   searchParams: Promise<{ status?: string; clientId?: string }>;
 }
 
-async function getNextInvoiceNumber() {
-  const last = await db.invoice.findFirst({ orderBy: { number: "desc" } });
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+async function getNextInvoiceNumber(userId: string) {
+  const last = await db.invoice.findFirst({ 
+    where: { entity: { userId } },
+    orderBy: { number: "desc" } 
+  });
   if (!last) return "INV-2026-001";
   const match = last.number.match(/INV-(\d+)-(\d+)/);
   if (!match) return "INV-2026-001";
@@ -24,13 +30,17 @@ async function getNextInvoiceNumber() {
 }
 
 export default async function InvoicesPage({ searchParams }: PageProps) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
   const params = await searchParams;
   const [invoices, clients, entities, nextNumber, aging, t] = await Promise.all([
-    getInvoices({ status: params.status, clientId: params.clientId }),
-    getClients(),
-    getEntities(),
-    getNextInvoiceNumber(),
-    getInvoiceAging(),
+    getInvoices(userId, { status: params.status, clientId: params.clientId }),
+    getClients(userId),
+    getEntities(userId),
+    getNextInvoiceNumber(userId),
+    getInvoiceAging(userId),
     getTranslations("Invoices"),
   ]);
 
@@ -75,10 +85,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
 
       <InvoiceAgingPanel aging={aging} />
 
-      <InvoicesTable
+      <InvoiceViewWrapper
         invoices={invoices}
         clients={clients.map((c) => ({ id: c.id, name: c.name }))}
       />
     </div>
   );
 }
+

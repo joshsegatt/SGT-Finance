@@ -7,6 +7,8 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import type { Role } from "@prisma/client";
 
+import { createAuditLog } from "./audit";
+
 // ─── Auth helpers ──────────────────────────────────────────────────────────────
 
 async function requireAuth() {
@@ -61,10 +63,21 @@ const CreateInvoiceSchema = z.object({
   lines: z.array(InvoiceLineSchema).min(1),
 });
 
+import { checkQuota } from "@/lib/plans";
+
 export async function createInvoice(raw: unknown) {
-  await requireWriteAccess();
+  const session = await requireWriteAccess();
+  const user = await db.user.findUnique({ where: { id: session.user.id } });
+  
+  if (!user) throw new Error("User not found");
+
+  const isAllowed = await checkQuota(user.plan, "invoicesPerMonth", user.id);
+  if (!isAllowed) {
+    throw new Error("INVOICE_QUOTA_EXCEEDED");
+  }
 
   const data = CreateInvoiceSchema.parse(raw);
+
 
   const lines = data.lines.map((l) => ({
     description: l.description,
@@ -86,6 +99,12 @@ export async function createInvoice(raw: unknown) {
       status: "DRAFT",
       lines: { create: lines },
     },
+  });
+
+  await createAuditLog(user.id, "CREATE_INVOICE", { 
+    invoiceId: invoice.id, 
+    number: invoice.number,
+    amount: lines.reduce((s, l) => s + l.amount, 0)
   });
 
   revalidatePath("/invoices");
@@ -276,6 +295,12 @@ export async function createClient(raw: unknown) {
       status: data.status,
     },
   });
+
+  const session = await auth();
+  if (session?.user?.id) {
+    await createAuditLog(session.user.id, "CREATE_CLIENT", { clientId: client.id, name: client.name });
+  }
+
   revalidatePath("/clients");
   return client;
 }
@@ -316,4 +341,88 @@ export async function updateUserAvatar(dataUrl: string) {
   });
   revalidatePath("/settings");
   return { success: true };
+}
+
+// ─── Settings / Business ──────────────────────────────────────────────────────
+
+export async function regenerateApiKey() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const newKey = `sgt_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+  
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { apiKey: newKey },
+  });
+
+  await createAuditLog(session.user.id, "REGENERATE_API_KEY", { maskedKey: "sgt_***" + newKey.slice(-4) });
+
+  revalidatePath("/settings");
+  return { success: true, apiKey: newKey };
+}
+
+export async function updateCustomLogo(logoUrl: string | null) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Fetch a TaxProfile for this user (arbitrary first one or we should have a user-level customLogo)
+  // Actually the requirement says "customLogoUrl in TaxProfile", but for global dashboard white-label,
+  // we might want it on the User or a dedicated Branding model.
+  // Given the earlier prompt: "Implement a field customLogoUrl in TaxProfile"
+  const profile = await db.taxProfile.findFirst({
+    where: { entity: { userId: session.user.id } }
+  });
+
+  if (!profile) throw new Error("No tax profile found to attach logo");
+
+  await db.taxProfile.update({
+    where: { id: profile.id },
+    data: { customLogoUrl: logoUrl },
+  });
+
+  await createAuditLog(session.user.id, "UPDATE_WHITE_LABEL", { hasLogo: !!logoUrl });
+
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function preCheckLogin(raw: any) {
+  const { email, password } = raw;
+  const user = await db.user.findUnique({ where: { email } });
+
+  if (!user || !user.password) {
+    return { success: false, error: "Invalid credentials" };
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    return { success: false, error: "Invalid credentials" };
+  }
+
+  if (user.twoFactorEnabled) {
+    const { sendMfaCode } = await import("./mfa");
+    await sendMfaCode(user.id, user.email!);
+    return { success: true, mfaRequired: true, userId: user.id };
+  }
+
+  return { success: true, mfaRequired: false };
+}
+
+export async function completeMfaLogin(userId: string, code: string) {
+  const { verifyMfaCode } = await import("./mfa");
+  const result = await verifyMfaCode(userId, code);
+  if (!result.success) return result;
+
+  const mfaToken = `mfa_token_${Math.random().toString(36).substring(2)}`;
+  await db.verificationToken.create({
+    data: {
+      identifier: `mfa-session-${userId}`,
+      token: mfaToken,
+      expires: new Date(Date.now() + 5 * 60 * 1000)
+    }
+  });
+
+  return { success: true, mfaToken };
 }

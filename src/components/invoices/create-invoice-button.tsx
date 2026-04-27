@@ -18,7 +18,7 @@ export function CreateInvoiceButton({ clients, entities, nextNumber }: CreateInv
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
+      <Button size="sm" className="gap-1.5" onClick={() => setOpen(true)} data-create-invoice>
         <Plus className="h-4 w-4" />
         New Invoice
       </Button>

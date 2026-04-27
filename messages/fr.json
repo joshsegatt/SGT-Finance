@@ -16,6 +16,7 @@
       "tools": "Outils"
     },
     "upgradePro": "Passer à Pro",
+    "upgradeBusiness": "Passer à Business",
     "commandCenter": "Centre de Commande",
     "subLabels": {
       "print": "Imprimer",
@@ -182,7 +183,9 @@
     "noAccount": "Pas encore de compte ?",
     "createOne": "Cr\u00e9er un compte",
     "invalidCredentials": "Identifiants invalides ou compte inexistant.",
-    "unexpectedError": "Une erreur inattendue s'est produite. Veuillez r\u00e9essayer."
+    "unexpectedError": "Une erreur inattendue s'est produite. Veuillez r\u00e9essayer.",
+    "secure": "Chiffrement 256-bit",
+    "institutional": "Niveau Institutionnel"
   },
   "Notifications": {
     "title": "Notifications",
@@ -339,7 +342,7 @@
       "annualSaving": "Facturé annuellement · économisez €{amount}/an",
       "ctaFree": "Démarrer Gratuitement",
       "ctaPro": "Commencer Pro",
-      "ctaBusiness": "Contacter les Ventes",
+      "ctaBusiness": "Démarrer Business",
       "comparisonLink": "Voir la comparaison complète →",
       "noCreditCard": "Sans carte bancaire · Résiliez à tout moment",
       "footerNote": "Tous les plans incluent SSL, conformité RGPD et sauvegardes automatiques quotidiennes.",
@@ -366,12 +369,12 @@
       "trust": "Plan gratuit à vie · Sans engagement · Résiliez à tout moment"
     },
     "footer": {
-      "tagline": "Contrôle financier total pour les PME portugaises et européennes.",
+      "tagline": "Contrôle financier total pour les PME européennes.",
       "product": "Produit",
       "company": "Entreprise",
       "support": "Assistance",
       "legal": "Légal",
-      "copyright": "© {year} Segatt Labs · Tous droits réservés · Lisbonne, Portugal",
+      "copyright": "© {year} Segatt Labs · Tous droits réservés · Europe",
       "lFeatures": "Fonctionnalités",
       "lPricing": "Tarifs",
       "lOpenBanking": "Open Banking",

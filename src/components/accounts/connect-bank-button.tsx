@@ -20,6 +20,7 @@ export function ConnectBankButton({ entities }: { entities: Entity[] }) {
         onClick={() => setOpen(true)}
         className="gap-2"
         size="sm"
+        data-connect-bank
       >
         <Plus className="w-4 h-4" />
         Connect Bank

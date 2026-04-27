@@ -3,13 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PLAN_KEYS = [
-  { key: "FREE", monthlyPrice: 0, annualPrice: 0, color: "rgba(255,255,255,0.07)", accentColor: "rgba(255,255,255,0.15)", ctaHref: "/register", featKey: "free", popular: false },
-  { key: "PRO", monthlyPrice: 19, annualPrice: 15, color: "rgba(73,121,239,0.12)", accentColor: "#4979EF", ctaHref: "/register?plan=pro", featKey: "pro", popular: true },
-  { key: "BUSINESS", monthlyPrice: 49, annualPrice: 39, color: "rgba(124,58,237,0.10)", accentColor: "#7C3AED", ctaHref: "/register?plan=business", featKey: "biz", popular: false },
+  { key: "FREE", monthlyPrice: 0, annualPrice: 0, ctaHref: "/register", featKey: "free", popular: false },
+  { key: "PRO", monthlyPrice: 19, annualPrice: 15, ctaHref: "/register?plan=pro", featKey: "pro", popular: true },
+  { key: "BUSINESS", monthlyPrice: 49, annualPrice: 39, ctaHref: "/register?plan=business", featKey: "biz", popular: false },
 ] as const;
-
 
 export function PricingSection() {
   const t = useTranslations("Marketing.pricing");
@@ -18,7 +18,7 @@ export function PricingSection() {
   const PLANS = PLAN_KEYS.map((p) => ({
     ...p,
     name: p.key === "FREE" ? "Free" : p.key === "PRO" ? "Pro" : "Business",
-    description: t(`plan${p.key.charAt(0) + p.key.slice(1).toLowerCase()}Desc` as "planFreeDesc" | "planProDesc" | "planBusinessDesc"),
+    description: t(`plan${p.key.charAt(0) + p.key.slice(1).toLowerCase()}Desc` as any),
     cta: p.key === "FREE" ? t("ctaFree") : p.key === "PRO" ? t("ctaPro") : t("ctaBusiness"),
     features: t.raw(`${p.featKey}Features`) as string[],
     missing: t.raw(`${p.featKey}Missing`) as string[],
@@ -27,134 +27,149 @@ export function PricingSection() {
   return (
     <section
       id="pricing"
-      style={{ background: "#050A14", paddingTop: 100, paddingBottom: 100, borderTop: "1px solid rgba(255,255,255,0.05)" }}
+      className="font-sans relative overflow-hidden bg-[#F7F8FA]"
+      style={{ paddingTop: 120, paddingBottom: 120 }}
     >
-      <div className="max-w-5xl mx-auto px-6">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] pointer-events-none" style={{ background: "radial-gradient(ellipse at top, rgba(97,97,255,0.05) 0%, transparent 60%)" }} />
+
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="text-center mb-14">
-          <div
-            className="inline-block px-3 py-1 rounded-full mb-5 text-[11px] font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(73,121,239,0.10)", border: "1px solid rgba(73,121,239,0.20)", color: "#7BA4FF" }}
+        <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-block px-4 py-1.5 rounded-full mb-6 text-xs font-black uppercase tracking-widest text-[#6161FF] bg-white border border-[#E6E9EF] shadow-sm"
           >
             Preços
-          </div>
-          <h2
-            className="font-black tracking-tight text-white mb-4"
-            style={{ fontSize: "clamp(28px, 4vw, 48px)" }}
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="font-heading font-black tracking-tight text-[#323338] mb-6"
+            style={{ fontSize: "clamp(36px, 5vw, 56px)" }}
           >
             {t("headline1")}{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #4979EF, #7C3AED)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
+            <span className="text-[#6161FF]">
               {t("headline2")}
             </span>
-          </h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.38)", marginBottom: 32 }}>
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="max-w-xl mx-auto text-lg font-medium text-[#676879] mb-10"
+          >
             {t("subhead")}
-          </p>
+          </motion.p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 p-1 rounded-xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="inline-flex items-center gap-2 p-1.5 rounded-2xl relative bg-white border border-[#E6E9EF] shadow-sm" 
+          >
+            <div 
+               className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-xl transition-all duration-300 ease-out bg-[#6161FF] shadow-figma-button"
+               style={{ 
+                 left: annual ? "calc(50% + 1.5px)" : "4.5px" 
+               }}
+            />
             <button
               onClick={() => setAnnual(false)}
-              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+              className="relative z-10 px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-200"
               style={{
-                background: !annual ? "rgba(255,255,255,0.10)" : "transparent",
-                color: !annual ? "white" : "rgba(255,255,255,0.40)",
-                border: !annual ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
+                color: !annual ? "white" : "#676879",
+                width: 140
               }}
             >
               {t("monthly")}
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+              className="relative z-10 flex justify-center items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-200"
               style={{
-                background: annual ? "rgba(73,121,239,0.18)" : "transparent",
-                color: annual ? "#7BA4FF" : "rgba(255,255,255,0.40)",
-                border: annual ? "1px solid rgba(73,121,239,0.30)" : "1px solid transparent",
+                color: annual ? "white" : "#676879",
+                width: 140
               }}
             >
               {t("annual")}
               <span
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
-                style={{ background: "rgba(34,197,94,0.18)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.25)" }}
+                className="absolute -top-3 -right-3 text-[10px] font-black px-2 py-1 rounded-md bg-[#00D745] text-white shadow-sm"
               >
                 {t("annualDiscount")}
               </span>
             </button>
-          </div>
+          </motion.div>
         </div>
-
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {PLANS.map((plan) => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+          {PLANS.map((plan, i) => {
             const price = annual ? plan.annualPrice : plan.monthlyPrice;
             const isPopular = plan.popular;
 
             return (
-              <div
+              <motion.div
                 key={plan.key}
-                className={`relative flex flex-col rounded-2xl pricing-card ${isPopular ? "pricing-card-popular" : "pricing-card-default"}`}
-                style={{
-                  background: isPopular ? "rgba(73,121,239,0.08)" : "rgba(255,255,255,0.03)",
-                  border: isPopular
-                    ? "1px solid rgba(73,121,239,0.35)"
-                    : "1px solid rgba(255,255,255,0.08)",
-                  boxShadow: isPopular ? "0 0 60px rgba(73,121,239,0.12), 0 4px 30px rgba(0,0,0,0.4)" : "none",
-                }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.15 + 0.3 }}
+                className={`group relative flex flex-col rounded-[2.5rem] transition-all duration-500 hover:scale-[1.02] ${
+                  isPopular 
+                    ? "p-[1.5px] bg-gradient-to-b from-[#6366F1] via-[#8B5CF6] to-[#EC4899] shadow-2xl z-20" 
+                    : "border border-border/50 bg-secondary/40 backdrop-blur-md shadow-xl"
+                }`}
               >
                 {isPopular && (
-                  <div
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold"
-                    style={{
-                      background: "linear-gradient(135deg, #4979EF, #7C3AED)",
-                      color: "white",
-                      boxShadow: "0 4px 20px rgba(73,121,239,0.4)",
-                    }}
-                  >
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-[12px] font-black uppercase tracking-wider bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-lg z-30">
                     {t("mostPopular")}
                   </div>
                 )}
 
-                {/* Top gradient line */}
-                {isPopular && (
-                  <div
-                    className="absolute inset-x-0 top-0 h-px rounded-t-2xl"
-                    style={{ background: "linear-gradient(90deg, transparent, rgba(73,121,239,0.8), transparent)" }}
-                  />
-                )}
-
-                <div className="p-7 flex flex-col flex-1">
-                  <div className="mb-6">
-                    <div className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: isPopular ? "#7BA4FF" : "rgba(255,255,255,0.40)" }}>
+                <div className={`flex flex-col flex-1 p-8 rounded-[2.4rem] h-full ${isPopular ? "bg-white/95 backdrop-blur-sm" : ""}`}>
+                  <div className="mb-8">
+                    <div className={`text-sm font-black uppercase tracking-widest mb-3 ${isPopular ? "text-primary" : "text-muted-foreground"}`}>
                       {plan.name}
                     </div>
-                    <div className="flex items-end gap-1 mb-3">
+                    <div className="flex items-end gap-1.5 mb-3 h-14">
                       {price === 0 ? (
-                    <span key="free" className="font-black text-white marketing-price-pop" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                        <span className="font-heading font-black text-foreground" style={{ fontSize: 48, letterSpacing: "-0.04em", lineHeight: 1 }}>
                           {t("free")}
                         </span>
                       ) : (
                         <>
-                          <span key={price} className="font-black text-white marketing-price-pop" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
-                            €{price}
-                          </span>
-                          <span className="mb-1.5" style={{ fontSize: 14, color: "rgba(255,255,255,0.38)" }}>{t("perMonth")}</span>
+                          <AnimatePresence mode="popLayout">
+                            <motion.span 
+                               key={price} 
+                               initial={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+                               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                               exit={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+                               className="font-heading font-black text-foreground" 
+                               style={{ fontSize: 56, letterSpacing: "-0.04em", lineHeight: 1 }}
+                            >
+                              €{price}
+                            </motion.span>
+                          </AnimatePresence>
+                          <span className="mb-2 font-medium text-muted-foreground text-sm">{t("perMonth")}</span>
                         </>
                       )}
                     </div>
                     {annual && price > 0 && (
-                      <div className="text-[11px] mb-3" style={{ color: "#22c55e" }}>
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="text-[12px] font-bold mb-4 text-emerald-500" 
+                      >
                         {t("annualSaving", { amount: (plan.monthlyPrice - plan.annualPrice) * 12 })}
-                      </div>
+                      </motion.div>
                     )}
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.38)", lineHeight: 1.6 }}>
+                    <p className="text-sm font-medium text-muted-foreground leading-relaxed" style={{ marginTop: price === 0 || !annual ? 16 : 0 }}>
                       {plan.description}
                     </p>
                   </div>
@@ -162,67 +177,61 @@ export function PricingSection() {
                   {/* CTA */}
                   <Link
                     href={plan.ctaHref}
-                    className="flex flex-col items-center py-3 rounded-xl font-bold text-sm mb-3 transition-all duration-200"
-                    style={
-                      isPopular
-                        ? {
-                            background: "linear-gradient(135deg, #4979EF, #3B6CE0)",
-                            color: "white",
-                            boxShadow: "0 0 24px rgba(73,121,239,0.40)",
-                          }
-                        : {
-                            background: "rgba(255,255,255,0.07)",
-                            color: "rgba(255,255,255,0.75)",
-                            border: "1px solid rgba(255,255,255,0.10)",
-                          }
-                    }
+                    className={`flex flex-col items-center justify-center py-4 rounded-2xl font-bold text-sm mb-8 transition-all duration-300 ${
+                      isPopular 
+                        ? "bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-figma-button hover:shadow-figma-button-hover hover:opacity-90" 
+                        : "bg-white border border-border text-foreground hover:bg-secondary/20 shadow-sm"
+                    }`}
                   >
                     {plan.cta}
                   </Link>
-                  <p className="text-center mb-6" style={{ fontSize: 11, color: "rgba(255,255,255,0.28)" }}>
-                    {t("noCreditCard")}
-                  </p>
+
+                  <div className="h-px w-full mb-8 bg-border/50" />
 
                   {/* Features */}
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-4">
                     {plan.features.map((f) => (
-                      <div key={f} className="flex items-center gap-2.5" style={{ fontSize: 13, color: "rgba(255,255,255,0.65)" }}>
+                      <div key={f} className="flex items-start gap-3 text-sm font-medium text-foreground/90">
                         <span
-                          className="flex items-center justify-center shrink-0"
-                          style={{ width: 18, height: 18, borderRadius: "50%", background: isPopular ? "rgba(73,121,239,0.20)" : "rgba(255,255,255,0.08)" }}
+                          className={`flex items-center justify-center shrink-0 mt-0.5 w-5 h-5 rounded-full ${isPopular ? "bg-primary/10" : "bg-secondary/50"}`}
                         >
-                          <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                            <path d="M1.5 4.5l2 2 4-4" stroke={isPopular ? "#7BA4FF" : "#9CA3AF"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <path d="M2 5l2 2 4-4" stroke={isPopular ? "currentColor" : "currentColor"} className={isPopular ? "text-primary" : "text-muted-foreground"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </span>
-                        {f}
+                        <span>{f}</span>
                       </div>
                     ))}
                     {plan.missing.map((f) => (
-                      <div key={f} className="flex items-center gap-2.5" style={{ fontSize: 13, color: "rgba(255,255,255,0.22)" }}>
+                      <div key={f} className="flex items-start gap-3 text-sm font-medium text-muted-foreground/60">
                         <span
-                          className="flex items-center justify-center shrink-0"
-                          style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }}
+                          className="flex items-center justify-center shrink-0 mt-0.5 w-5 h-5 rounded-full border border-border/50"
                         >
                           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                            <path d="M2 2l4 4M6 2L2 6" stroke="rgba(255,255,255,0.20)" strokeWidth="1.3" strokeLinecap="round" />
+                            <path d="M2 2l4 4M6 2L2 6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                           </svg>
                         </span>
-                        {f}
+                        <span>{f}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
 
         {/* Footer note */}
-        <p className="text-center mt-10" style={{ fontSize: 13, color: "rgba(255,255,255,0.28)" }}>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+          className="text-center mt-12 text-sm font-medium text-[#676879]" 
+        >
           {t("footerNote")}{" "}
-          <Link href="/pricing" style={{ color: "#7BA4FF" }}>{t("comparisonLink")}</Link>
-        </p>
+          <Link href="/pricing" className="text-[#6161FF] font-bold hover:underline">{t("comparisonLink")}</Link>
+        </motion.p>
       </div>
     </section>
   );

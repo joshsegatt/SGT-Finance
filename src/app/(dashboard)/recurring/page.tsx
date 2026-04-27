@@ -8,9 +8,16 @@ export const metadata = {
   description: "Monitor subscriptions, detect unused services and control recurring spend.",
 };
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export default async function RecurringPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
   const [subscriptions, t] = await Promise.all([
-    getSubscriptions(),
+    getSubscriptions(userId),
     getTranslations("Recurring"),
   ]);
 

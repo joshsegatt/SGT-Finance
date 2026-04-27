@@ -11,11 +11,25 @@ interface PageProps {
   searchParams: Promise<{ entityId?: string }>;
 }
 
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { hasFeatureAccess } from "@/lib/plans";
+import { UpgradeRequired } from "@/components/upgrade-required";
+import { Plan } from "@prisma/client";
+
 export default async function TaxPage({ searchParams }: PageProps) {
+  const session = await auth();
+  const user = session?.user?.id ? await db.user.findUnique({ where: { id: session.user.id } }) : null;
+  const currentPlan = user?.plan ?? Plan.FREE;
+
+  if (!hasFeatureAccess(currentPlan, "tax")) {
+    return <UpgradeRequired plan={currentPlan} />;
+  }
+
   const params = await searchParams;
   const [entities, allEntities, t] = await Promise.all([
-    getTaxSummary(),
-    getEntities(),
+    getTaxSummary(user!.id),
+    getEntities(user!.id),
     getTranslations("Tax"),
   ]);
 

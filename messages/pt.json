@@ -16,6 +16,7 @@
       "tools": "Ferramentas"
     },
     "upgradePro": "Upgrade para Pro",
+    "upgradeBusiness": "Upgrade para Business",
     "commandCenter": "Centro de Comando",
     "subLabels": {
       "print": "Imprimir",
@@ -196,7 +197,9 @@
     "noAccount": "N\u00e3o tem conta?",
     "createOne": "Criar conta",
     "invalidCredentials": "Credenciais inv\u00e1lidas ou conta inexistente.",
-    "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+    "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente.",
+    "secure": "Encriptação 256-bit",
+    "institutional": "Grau Institucional"
   },
   "Notifications": {
     "title": "Notifica\u00e7\u00f5es",
@@ -339,7 +342,7 @@
       "annualSaving": "Faturado anualmente · poupa €{amount}/ano",
       "ctaFree": "Começar Grátis",
       "ctaPro": "Começar Pro",
-      "ctaBusiness": "Contactar Vendas",
+      "ctaBusiness": "Iniciar Business",
       "comparisonLink": "Ver comparação completa →",
       "noCreditCard": "Sem cartão de crédito · Cancela a qualquer momento",
       "footerNote": "Todos os planos incluem SSL, conformidade RGPD e backups automáticos diários.",
@@ -366,12 +369,12 @@
       "trust": "Plano gratuito para sempre · Sem compromisso · Cancela a qualquer momento"
     },
     "footer": {
-      "tagline": "Controlo financeiro total para PMEs portuguesas e europeias.",
+      "tagline": "Controlo financeiro total para PMEs europeias.",
       "product": "Produto",
       "company": "Empresa",
       "support": "Suporte",
       "legal": "Legal",
-      "copyright": "© {year} Segatt Labs · Todos os direitos reservados · Lisboa, Portugal",
+      "copyright": "© {year} Segatt Labs · Todos os direitos reservados · Europa",
       "lFeatures": "Funcionalidades",
       "lPricing": "Preços",
       "lOpenBanking": "Open Banking",

@@ -2,8 +2,9 @@ import { getDashboardKPIs, getMonthlyTransactions, getRecentTransactions, getAle
 import { formatCurrency, formatRelative } from "@/lib/format";
 import { CashFlowChart } from "@/components/cash-flow-chart";
 import { AlertCard } from "@/components/alert-card";
-import { KpiSparkline } from "@/components/kpi-sparkline";
-import { Landmark, TrendingUp, AlertTriangle, FileWarning } from "lucide-react";
+import { DashboardKpiRow } from "@/components/dashboard-kpi-row";
+import { EmptyState } from "@/components/ui/empty-state";
+import { BellOff, Receipt, CreditCard } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 
 export const metadata = {
@@ -11,12 +12,19 @@ export const metadata = {
   description: "Financial overview: balances, cash flow, alerts and recent transactions.",
 };
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export default async function DashboardPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
   const [kpis, monthlyData, recentTxs, alerts, t, locale] = await Promise.all([
-    getDashboardKPIs(),
-    getMonthlyTransactions(6),
-    getRecentTransactions(8),
-    getAlerts(),
+    getDashboardKPIs(userId),
+    getMonthlyTransactions(userId, 6),
+    getRecentTransactions(userId, 8),
+    getAlerts(userId),
     getTranslations("Dashboard"),
     getLocale(),
   ]);
@@ -36,81 +44,22 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Total Balance */}
-        <div className="animate-fade-up stagger-1 relative bg-card rounded-xl border border-border/60 p-5 card-shadow overflow-hidden hover:border-border hover:-translate-y-0.5 transition-all duration-200">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">{t("kpi.totalBalance")}</span>
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Landmark className="w-4 h-4 text-primary" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-foreground tracking-tight">
-            {formatCurrency(kpis.totalBalance)}
-          </div>
-          <KpiSparkline data={monthlyData.map((m) => m.income - m.expense)} color="#4979EF" positive />
-          <div className="text-xs text-muted-foreground mt-1">{t("kpi.acrossAllAccounts")}</div>
-        </div>
-
-        {/* Cash Reserve */}
-        <div className="animate-fade-up stagger-2 relative bg-card rounded-xl border border-border/60 p-5 card-shadow overflow-hidden hover:border-border hover:-translate-y-0.5 transition-all duration-200">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">{t("kpi.cashReserve")}</span>
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-primary" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-foreground tracking-tight">
-            {formatCurrency(kpis.cashReserve)}
-          </div>
-          <KpiSparkline data={monthlyData.map((m) => m.income)} color="#22c55e" positive />
-          <div className="text-xs text-muted-foreground mt-1">{t("kpi.savingsOnly")}</div>
-        </div>
-
-        {/* Tax Exposure */}
-        <div className="animate-fade-up stagger-3 relative bg-card rounded-xl border border-primary/20 p-5 card-shadow overflow-hidden hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-200">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-semibold text-primary/70 uppercase tracking-widest">{t("kpi.taxExposure")}</span>
-            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4 text-primary" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-foreground tracking-tight">
-            {formatCurrency(kpis.taxExposure)}
-          </div>
-          <KpiSparkline data={monthlyData.map((m) => m.expense * 0.25)} color="#4979EF" positive={false} />
-          <div className="text-xs text-muted-foreground mt-1">{t("kpi.effectiveRate")}</div>
-        </div>
-
-        {/* Overdue Invoices */}
-        <div className={`animate-fade-up stagger-4 relative bg-card rounded-xl border p-5 card-shadow overflow-hidden hover:-translate-y-0.5 transition-all duration-200 ${
-          kpis.overdueInvoicesCount > 0
-            ? "border-amber-500/30 hover:border-amber-500/50"
-            : "border-border/60 hover:border-border"
-        }`}>
-          <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent ${
-            kpis.overdueInvoicesCount > 0 ? "via-amber-500/70" : "via-primary/40"
-          }`} />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">{t("kpi.overdueInvoices")}</span>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-              kpis.overdueInvoicesCount > 0 ? "bg-amber-500/10" : "bg-primary/10"
-            }`}>
-              <FileWarning className={`w-4 h-4 ${kpis.overdueInvoicesCount > 0 ? "text-amber-500" : "text-primary"}`} />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-foreground tracking-tight">{kpis.overdueInvoicesCount}</div>
-          <div className={`text-xs mt-2 ${kpis.overdueInvoicesCount > 0 ? "text-amber-500/80" : "text-muted-foreground"}`}>
-            {kpis.overdueInvoicesCount > 0
-              ? `${formatCurrency(kpis.overdueInvoicesTotal)} ${t("kpi.outstanding")}`
-              : t("kpi.allUpToDate")}
-          </div>
-        </div>
-      </div>
+      {/* KPI Row — Drag & Drop enabled */}
+      <DashboardKpiRow
+        kpis={kpis}
+        monthlyData={monthlyData}
+        translations={{
+          totalBalance: t("kpi.totalBalance"),
+          cashReserve: t("kpi.cashReserve"),
+          taxExposure: t("kpi.taxExposure"),
+          overdueInvoices: t("kpi.overdueInvoices"),
+          acrossAllAccounts: t("kpi.acrossAllAccounts"),
+          savingsOnly: t("kpi.savingsOnly"),
+          effectiveRate: t("kpi.effectiveRate"),
+          outstanding: t("kpi.outstanding"),
+          allUpToDate: t("kpi.allUpToDate"),
+        }}
+      />
 
       {/* Charts + Alerts Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 animate-fade-up stagger-3">
@@ -138,14 +87,12 @@ export default async function DashboardPage() {
             )}
           </div>
           {alerts.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                <svg className="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-sm text-muted-foreground">{t("noAlerts")}</p>
-            </div>
+            <EmptyState
+              icon={BellOff}
+              title={t("noAlerts")}
+              description="Your financial health looks great. We'll notify you if anything needs attention."
+              compact
+            />
           ) : (
             <div className="space-y-2">
               {alerts.map((alert) => (
@@ -166,17 +113,16 @@ export default async function DashboardPage() {
           </a>
         </div>
         {recentTxs.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-              <svg className="w-7 h-7 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">{t("noTransactions")}</p>
-              <p className="text-xs text-muted-foreground mt-1">Connect a bank account to import transactions</p>
-            </div>
-          </div>
+          <EmptyState
+            icon={CreditCard}
+            title={t("noTransactions")}
+            description="Connect your first bank account to import transactions and see your cash flow."
+            action={{
+              label: "Connect Bank",
+              href: "/accounts"
+            }}
+            className="py-12"
+          />
         ) : (
           <div className="divide-y divide-border/30">
             {recentTxs.map((tx) => (

@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getConnection, getConnectionAccounts } from "@/lib/saltedge";
 import { rateLimit, getIdentifier } from "@/lib/rateLimit";
 
+import { checkQuota } from "@/lib/plans";
+
 export async function GET(req: NextRequest) {
   const { allowed } = rateLimit(getIdentifier(req), 10, 60_000);
   if (!allowed) {
@@ -11,9 +13,13 @@ export async function GET(req: NextRequest) {
   }
 
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const user = await db.user.findUnique({ where: { id: session.user.id } });
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
 
   const connectionId = req.nextUrl.searchParams.get("connection_id");
   const entityId = req.nextUrl.searchParams.get("entityId");
@@ -28,6 +34,7 @@ export async function GET(req: NextRequest) {
 
     const connection = await db.bankConnection.create({
       data: {
+        userId: session.user.id,
         provider: "SALTEDGE",
         institution: seConnection.provider_name,
         externalId: connectionId,
@@ -39,10 +46,14 @@ export async function GET(req: NextRequest) {
     let accountsCreated = 0;
 
     for (const acct of seAccounts) {
+      const isAllowed = await checkQuota(user.plan, "bankAccounts", user.id);
+      if (!isAllowed) break;
+
       const existing = await db.bankAccount.findUnique({
         where: { externalId: acct.id },
       });
       if (existing) continue;
+
 
       const nature = acct.nature?.toLowerCase() ?? "";
       const accountType =

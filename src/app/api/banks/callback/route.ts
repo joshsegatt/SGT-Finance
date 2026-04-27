@@ -4,14 +4,20 @@ import { db } from "@/lib/db";
 import { exchangeCode, getAccounts, getBalance } from "@/lib/truelayer";
 import { rateLimit, getIdentifier } from "@/lib/rateLimit";
 
+import { checkQuota } from "@/lib/plans";
+
 export async function GET(req: NextRequest) {
   const { allowed } = rateLimit(getIdentifier(req), 10, 60_000);
   if (!allowed) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
 
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const user = await db.user.findUnique({ where: { id: session.user.id } });
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
 
   // TrueLayer returns ?code=...&state=entityId on success, or ?error=...
   const code = req.nextUrl.searchParams.get("code");
@@ -45,6 +51,7 @@ export async function GET(req: NextRequest) {
 
     const connection = await db.bankConnection.create({
       data: {
+        userId: session.user.id,
         provider: "TRUELAYER",
         institution,
         status: "ACTIVE",
@@ -57,10 +64,14 @@ export async function GET(req: NextRequest) {
     let accountsCreated = 0;
 
     for (const tlAccount of accounts) {
+      const isAllowed = await checkQuota(user.plan, "bankAccounts", user.id);
+      if (!isAllowed) break;
+
       const existing = await db.bankAccount.findUnique({
         where: { externalId: tlAccount.account_id },
       });
       if (existing) continue;
+
 
       const balance = await getBalance(tokens.access_token, tlAccount.account_id).catch(
         () => ({ current: 0, available: 0, currency: tlAccount.currency, update_timestamp: "" })

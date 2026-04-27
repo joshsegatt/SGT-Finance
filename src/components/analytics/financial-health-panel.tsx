@@ -3,6 +3,11 @@
 import { formatCurrency } from "@/lib/format";
 import { TrendingUp, TrendingDown, Flame, Clock, DollarSign, Activity } from "lucide-react";
 
+import { Plan } from "@prisma/client";
+import { Lock } from "lucide-react";
+import { UpgradeModal } from "@/components/upgrade-modal";
+import { useState } from "react";
+
 interface FinancialHealthPanelProps {
   stats: {
     burnRate: number;
@@ -12,10 +17,13 @@ interface FinancialHealthPanelProps {
     totalBalance: number;
     incomeChange: number;
   };
+  plan: Plan;
 }
 
-export function FinancialHealthPanel({ stats }: FinancialHealthPanelProps) {
+export function FinancialHealthPanel({ stats, plan }: FinancialHealthPanelProps) {
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const { burnRate, incomeRate, netMonthly, runway, totalBalance, incomeChange } = stats;
+  const isForecastLocked = plan !== Plan.BUSINESS;
 
   const runwayLabel =
     runway === Infinity || runway > 120
@@ -65,6 +73,7 @@ export function FinancialHealthPanel({ stats }: FinancialHealthPanelProps) {
       value: runwayLabel,
       valueColor: runwayColor,
       sub: `Based on ${formatCurrency(totalBalance)} liquid balance`,
+      isLocked: isForecastLocked,
     },
   ];
 
@@ -79,11 +88,11 @@ export function FinancialHealthPanel({ stats }: FinancialHealthPanelProps) {
       </div>
       <div className="grid grid-cols-4 divide-x divide-border/40">
         {cards.map((card) => (
-          <div key={card.label} className="p-5 space-y-3">
+          <div key={card.label} className="relative p-5 space-y-3 group">
             <div className={`w-8 h-8 rounded-lg ${card.iconBg} flex items-center justify-center`}>
               <card.icon className="h-4 w-4" style={{ color: card.iconColor }} />
             </div>
-            <div>
+            <div className={card.isLocked ? "blur-sm select-none opacity-50 pointer-events-none" : ""}>
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                 {card.label}
               </div>
@@ -96,9 +105,22 @@ export function FinancialHealthPanel({ stats }: FinancialHealthPanelProps) {
                 </div>
               )}
             </div>
+            {card.isLocked && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/60 backdrop-blur-[2px] transition-all duration-300 group-hover:bg-card/40">
+                <button 
+                  onClick={() => setUpgradeModalOpen(true)}
+                  className="flex flex-col items-center gap-1.5 p-2 rounded-lg hover:scale-105 transition-transform"
+                >
+                  <Lock className="w-4 h-4 text-primary" />
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Unlock Forecasts</span>
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
+      <UpgradeModal open={upgradeModalOpen} onClose={() => setUpgradeModalOpen(false)} />
     </div>
   );
 }
+

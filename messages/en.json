@@ -16,6 +16,7 @@
       "tools": "Tools"
     },
     "upgradePro": "Upgrade to Pro",
+    "upgradeBusiness": "Upgrade to Business",
     "commandCenter": "Command Center",
     "subLabels": {
       "print": "Print",
@@ -196,7 +197,9 @@
     "noAccount": "Don't have an account?",
     "createOne": "Create one",
     "invalidCredentials": "Invalid credentials or account does not exist.",
-    "unexpectedError": "An unexpected error occurred. Please try again."
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "secure": "256-bit Encrypted",
+    "institutional": "Institutional Grade"
   },
   "Notifications": {
     "title": "Notifications",
@@ -339,7 +342,7 @@
       "annualSaving": "Billed annually · save €{amount}/year",
       "ctaFree": "Get Started Free",
       "ctaPro": "Start Pro",
-      "ctaBusiness": "Contact Sales",
+      "ctaBusiness": "Start Business",
       "comparisonLink": "View full comparison →",
       "noCreditCard": "No credit card required · Cancel anytime",
       "footerNote": "All plans include SSL, GDPR compliance and daily automatic backups.",
@@ -366,12 +369,12 @@
       "trust": "Free plan forever · No commitment · Cancel anytime"
     },
     "footer": {
-      "tagline": "Total financial control for Portuguese and European SMEs.",
+      "tagline": "Total financial control for European SMEs.",
       "product": "Product",
       "company": "Company",
       "support": "Support",
       "legal": "Legal",
-      "copyright": "© {year} Segatt Labs · All rights reserved · Lisbon, Portugal",
+      "copyright": "© {year} Segatt Labs · All rights reserved · Europe",
       "lFeatures": "Features",
       "lPricing": "Pricing",
       "lOpenBanking": "Open Banking",

@@ -1,9 +1,12 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 
 const BANKS = [
   "Revolut", "N26", "ING", "Santander", "BBVA",
   "Monzo", "Starling", "Montepio", "Millennium", "BPI",
-  "BNP Paribas", "Deutsche Bank",
+  "BNP Paribas", "Deutsche Bank", "Caixa Geral", "Crédito Agrícola", "ActivoBank", "Novobanco"
 ] as const;
 
 const STATS_KEYS = [
@@ -13,96 +16,90 @@ const STATS_KEYS = [
   { value: "3", key: "currencies" },
 ] as const;
 
-export async function SocialProofSection() {
-  const t = await getTranslations("Marketing.socialProof");
+export function SocialProofSection() {
+  const t = useTranslations("Marketing.socialProof");
+
+  // Duplicate the array to create a seamless loop
+  const duplicatedBanks = [...BANKS, ...BANKS];
+
   return (
     <section
-      className="relative overflow-hidden"
-      style={{ background: "#080E1C", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 80, paddingBottom: 80 }}
+      className="relative overflow-hidden flex flex-col items-center justify-center font-sans bg-[#F7F8FA]"
+      style={{ paddingTop: 80, paddingBottom: 100 }}
     >
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="w-full max-w-7xl mx-auto px-6">
         {/* Label */}
         <p
-          className="text-center font-semibold uppercase tracking-widest mb-10"
-          style={{ fontSize: 11, color: "rgba(255,255,255,0.28)" }}
+          className="text-center font-bold uppercase tracking-[0.2em] mb-12 text-[#676879] text-xs"
         >
           {t("poweredBy")}
         </p>
 
-        {/* Bank pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-5">
-          {BANKS.map((bank) => (
-            <div
-              key={bank}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg"
-              style={{
-                background: "rgba(255,255,255,0.035)",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "rgba(73,121,239,0.60)",
-                  display: "inline-block",
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.62)", letterSpacing: "0.01em" }}>
-                {bank}
-              </span>
-            </div>
-          ))}
-          <div
-            className="flex items-center px-4 py-2 rounded-lg"
-            style={{ background: "rgba(73,121,239,0.07)", border: "1px solid rgba(73,121,239,0.15)" }}
+        {/* Marquee Container */}
+        <div 
+          className="relative w-full overflow-hidden flex" 
+          style={{ 
+            maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+            WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+          }}
+        >
+          <motion.div
+            className="flex gap-4 min-w-max"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{
+              repeat: Infinity,
+              ease: "linear",
+              duration: 35,
+            }}
           >
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#7BA4FF" }}>+ 290 more</span>
-          </div>
+            {duplicatedBanks.map((bank, index) => (
+              <div
+                key={`${bank}-${index}`}
+                className="flex items-center gap-2.5 px-6 py-3 rounded-xl transition-colors duration-300 bg-white border border-[#E6E9EF] shadow-sm hover:shadow-figma-card"
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
+                  style={{ background: "#00D745" }}
+                />
+                <span className="text-sm font-bold text-[#323338] tracking-wide">
+                  {bank}
+                </span>
+              </div>
+            ))}
+          </motion.div>
         </div>
 
         {/* Infrastructure note */}
-        <p className="text-center mb-16" style={{ fontSize: 11, color: "rgba(255,255,255,0.22)" }}>
+        <p className="text-center mt-12 mb-20 text-xs font-medium text-[#676879]">
           Powered by{" "}
-          <span style={{ color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>TrueLayer</span>
+          <span className="text-[#323338] font-bold">TrueLayer</span>
           {" & "}
-          <span style={{ color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>Salt Edge</span>
+          <span className="text-[#323338] font-bold">Salt Edge</span>
           {" · Read-only PSD2 access · Your credentials are never shared"}
         </p>
 
         {/* Stats */}
-        <div
-          className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden"
-          style={{ border: "1px solid rgba(255,255,255,0.07)" }}
-        >
-          {STATS_KEYS.map((stat, i) => (
-            <div
-              key={stat.key}
-              className="flex flex-col items-center py-8 px-6 text-center"
-              style={{
-                background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "rgba(255,255,255,0.015)",
-              }}
-            >
+        <div className="max-w-5xl mx-auto">
+          <div
+            className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-3xl overflow-hidden bg-white border border-[#E6E9EF] shadow-figma-card"
+          >
+            {STATS_KEYS.map((stat, i) => (
               <div
-                className="font-black mb-2"
-                style={{
-                  fontSize: 36,
-                  letterSpacing: "-0.03em",
-                  background: "linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.55))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
+                key={stat.key}
+                className="flex flex-col items-center py-12 px-6 text-center transition-colors border-r border-b border-[#E6E9EF]"
               >
-                {stat.value}
+                <div
+                  className="font-heading font-black mb-3 text-5xl text-[#6161FF]"
+                  style={{ letterSpacing: "-0.04em" }}
+                >
+                  {stat.value}
+                </div>
+                <div className="text-sm text-[#676879] font-bold tracking-wide">
+                  {t(stat.key as any)}
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>
-                {t(stat.key as "banks" | "openBanking" | "gdpr" | "currencies")}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -8,11 +8,25 @@ export const metadata = {
   description: "Cash flow reports, category breakdowns and tax exposure analysis.",
 };
 
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { hasFeatureAccess } from "@/lib/plans";
+import { UpgradeRequired } from "@/components/upgrade-required";
+import { Plan } from "@prisma/client";
+
 export default async function ReportsPage() {
+  const session = await auth();
+  const user = session?.user?.id ? await db.user.findUnique({ where: { id: session.user.id } }) : null;
+  const currentPlan = user?.plan ?? Plan.FREE;
+
+  if (!hasFeatureAccess(currentPlan, "reports")) {
+    return <UpgradeRequired plan={currentPlan} />;
+  }
+
   const [cashFlow, categories, kpis, t] = await Promise.all([
-    getCashFlowReport(12),
-    getCategoryReport(),
-    getDashboardKPIs(),
+    getCashFlowReport(user!.id, 12),
+    getCategoryReport(user!.id),
+    getDashboardKPIs(user!.id),
     getTranslations("Reports"),
   ]);
 
@@ -23,7 +37,9 @@ export default async function ReportsPage() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("title")}</h1>
           <p className="text-muted-foreground mt-1.5">{t("subtitle")}</p>
         </div>
-        <ExportButton label={t("export")} />
+        {currentPlan === Plan.BUSINESS && (
+          <ExportButton label={t("export")} />
+        )}
       </div>
 
       <ReportsTabs cashFlow={cashFlow} categories={categories} kpis={kpis} />

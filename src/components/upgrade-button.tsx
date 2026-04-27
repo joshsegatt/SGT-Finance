@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { Sparkles } from "lucide-react";
+import { Plan } from "@prisma/client";
+import { getPlanUpgradeInfo } from "@/lib/plans";
 
-export function UpgradeButton({ label }: { label: string }) {
+export function UpgradeButton({ plan = Plan.FREE }: { plan?: Plan }) {
   const [open, setOpen] = useState(false);
+  const upgradeInfo = getPlanUpgradeInfo(plan);
+
+  if (!upgradeInfo) return null;
 
   return (
     <>
@@ -29,10 +34,11 @@ export function UpgradeButton({ label }: { label: string }) {
         />
         <span className="relative flex items-center justify-center gap-1.5">
           <Sparkles className="w-3 h-3 opacity-90" />
-          {label}
+          {upgradeInfo.label}
         </span>
       </button>
       <UpgradeModal open={open} onClose={() => setOpen(false)} />
     </>
   );
 }
+

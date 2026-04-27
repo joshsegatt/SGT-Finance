@@ -9,6 +9,12 @@ interface KPIs {
   totalBalance: number;
   cashReserve: number;
   taxExposure: number;
+  taxProvision: {
+    effectiveRate: number;
+    provisionedPct: number;
+    corporateTaxDue: number;
+    vatPayable: number;
+  };
   overdueInvoicesTotal: number;
 }
 
@@ -107,7 +113,7 @@ export function ReportsTabs({ cashFlow, categories, kpis }: ReportsTabsProps) {
         <div className="grid grid-cols-2 gap-4">
           {[
             { label: "Total Assets (GBP)", value: kpis.totalBalance, sub: "Across all entities" },
-            { label: "Tax Exposure Est.", value: kpis.taxExposure, sub: "6.5% effective rate" },
+            { label: "Tax Exposure", value: kpis.taxExposure, sub: `${kpis.taxProvision.effectiveRate}% effective rate` },
             { label: "Cash Reserve", value: kpis.cashReserve, sub: "Savings accounts" },
             { label: "Overdue Invoices", value: kpis.overdueInvoicesTotal, sub: "Outstanding" },
           ].map((k) => (
@@ -121,12 +127,11 @@ export function ReportsTabs({ cashFlow, categories, kpis }: ReportsTabsProps) {
 
         <div className="bg-card/80 rounded-xl border border-border p-6 shadow-md">
           <h3 className="text-sm font-semibold text-foreground mb-2">Tax Exposure Breakdown</h3>
-          <p className="text-xs text-muted-foreground mb-5">Estimated liability based on total asset value</p>
+          <p className="text-xs text-muted-foreground mb-5">Real-time liability calculated from business transactions</p>
           <div className="space-y-3">
             {[
-              { label: "Corporate Tax (19%)", amount: kpis.totalBalance * 0.019 },
-              { label: "VAT Provision", amount: kpis.totalBalance * 0.03 },
-              { label: "Other Provisions", amount: kpis.totalBalance * 0.016 },
+              { label: "Corporate Tax", amount: kpis.taxProvision.corporateTaxDue },
+              { label: "VAT Payable", amount: kpis.taxProvision.vatPayable },
             ].map((item) => (
               <div key={item.label} className="flex justify-between items-center border-b border-border/30 pb-2.5">
                 <span className="text-sm text-muted-foreground">{item.label}</span>
@@ -134,12 +139,16 @@ export function ReportsTabs({ cashFlow, categories, kpis }: ReportsTabsProps) {
               </div>
             ))}
             <div className="flex justify-between items-center pt-1">
-              <span className="text-sm font-semibold text-foreground">Total Estimated Liability</span>
+              <span className="text-sm font-semibold text-foreground">Total Tax Liability</span>
               <span className="text-base font-bold text-amber-400">{formatCurrency(kpis.taxExposure)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-border/30">
+              <span className="text-sm text-muted-foreground">Provisioned</span>
+              <span className="text-sm font-bold text-emerald-500">{kpis.taxProvision.provisionedPct}%</span>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-4 bg-muted/30 rounded-md p-3">
-            This is an automated estimate for planning purposes only. Consult your accountant for accurate tax filings.
+            Calculated from actual business revenue and applicable tax rates. Consult your accountant for accurate tax filings.
           </p>
         </div>
       </TabsContent>

@@ -11,9 +11,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { TransactionDetailDialog } from "./transaction-detail-dialog";
+import { TransactionDrawer } from "./transaction-drawer";
+import { ReconciliationView } from "./reconciliation-view";
 import { updateTransactionCategory } from "@/lib/actions";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, Search, RefreshCcw, SlidersHorizontal, Pencil } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, Search, RefreshCcw, SlidersHorizontal, Pencil, Sparkles } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
 type Transaction = {
@@ -37,10 +38,11 @@ interface TransactionsTableProps {
   transactions: Transaction[];
   categories: string[];
   accounts: { id: string; name: string }[];
+  invoices: any[]; // Used for reconciliation
   pagination: { page: number; totalPages: number; total: number };
 }
 
-export function TransactionsTable({ transactions, categories, accounts, pagination }: TransactionsTableProps) {
+export function TransactionsTable({ transactions, categories, accounts, invoices, pagination }: TransactionsTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,6 +50,7 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkCategory, setBulkCategory] = useState("");
+  const [reconcileMode, setReconcileMode] = useState(false);
   const [bulkPending, startBulkTransition] = useTransition();
   const [, startTransition] = useTransition();
 
@@ -89,7 +92,6 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
     } else {
       params.delete(key);
     }
-    // Reset to page 1 when filter changes
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`);
     });
@@ -122,6 +124,16 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
     return currentOrder === "asc"
       ? <ArrowUp className="ml-1 h-3 w-3 inline text-primary" />
       : <ArrowDown className="ml-1 h-3 w-3 inline text-primary" />;
+  }
+
+  if (reconcileMode) {
+    return (
+      <ReconciliationView
+        transactions={transactions}
+        invoices={invoices}
+        onExit={() => setReconcileMode(false)}
+      />
+    );
   }
 
   return (
@@ -189,7 +201,6 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
           </SelectContent>
         </Select>
 
-        {/* Date range */}
         <div className="flex items-center gap-1.5">
           <input
             type="date"
@@ -208,10 +219,21 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
           />
         </div>
 
-        <Button variant="outline" size="sm" className="ml-auto h-8 gap-1.5" onClick={handleExport}>
-          <Download className="h-3.5 w-3.5" />
-          CSV
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-primary border-primary/20 bg-primary/5 hover:bg-primary/10"
+            onClick={() => setReconcileMode(true)}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Reconcile
+          </Button>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={handleExport}>
+            <Download className="h-3.5 w-3.5" />
+            CSV
+          </Button>
+        </div>
       </div>
 
       {/* Bulk action floating bar */}
@@ -390,14 +412,12 @@ export function TransactionsTable({ transactions, categories, accounts, paginati
         </Table>
       </div>
 
-      {selectedTx && (
-        <TransactionDetailDialog
-          transaction={selectedTx}
-          categories={categories}
-          open={!!selectedTx}
-          onClose={() => setSelectedTx(null)}
-        />
-      )}
+      <TransactionDrawer
+        transaction={selectedTx}
+        categories={categories}
+        open={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
@@ -451,3 +471,4 @@ function StatusBadge({ status }: { status: string }) {
     </span>
   );
 }
+

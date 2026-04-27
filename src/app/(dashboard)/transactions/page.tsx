@@ -1,4 +1,4 @@
-import { getTransactions, getTransactionCategories, getBankAccounts } from "@/lib/data";
+import { getTransactions, getTransactionCategories, getBankAccounts, getInvoices } from "@/lib/data";
 import { TransactionsTable } from "@/components/transactions/transactions-table";
 import { getTranslations } from "next-intl/server";
 
@@ -11,12 +11,19 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export default async function TransactionsPage({ searchParams }: PageProps) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
 
-  const [result, categories, accounts, t] = await Promise.all([
-    getTransactions({
+  const [result, categories, accounts, invoices, t] = await Promise.all([
+    getTransactions(userId, {
       search: params.search,
       category: params.category,
       status: params.status,
@@ -27,8 +34,9 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
       order: params.order,
       page,
     }),
-    getTransactionCategories(),
-    getBankAccounts(),
+    getTransactionCategories(userId),
+    getBankAccounts(userId),
+    getInvoices(userId, {}), // Fetch all for reconciliation
     getTranslations("Transactions"),
   ]);
 
@@ -44,8 +52,10 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
         transactions={result.items}
         categories={categories}
         accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
+        invoices={invoices}
         pagination={{ page: result.page, totalPages: result.totalPages, total: result.total }}
       />
     </div>
   );
 }
+

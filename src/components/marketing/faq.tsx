@@ -16,28 +16,22 @@ export function FaqSection() {
 
   return (
     <section
+      className="bg-[#F7F8FA]"
       style={{
-        background: "#050A14",
         paddingTop: 100,
         paddingBottom: 100,
-        borderTop: "1px solid rgba(255,255,255,0.05)",
       }}
     >
       <div className="max-w-3xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-14">
           <div
-            className="inline-block px-3 py-1 rounded-full mb-5 text-[11px] font-semibold uppercase tracking-widest"
-            style={{
-              background: "rgba(6,182,212,0.10)",
-              border: "1px solid rgba(6,182,212,0.20)",
-              color: "#22D3EE",
-            }}
+            className="inline-block px-4 py-1.5 rounded-full mb-5 text-[11px] font-black uppercase tracking-widest bg-white border border-[#E6E9EF] shadow-sm text-[#00CFF4]"
           >
             {t("badge")}
           </div>
           <h2
-            className="font-black tracking-tight text-white"
+            className="font-heading font-black tracking-tight text-[#323338]"
             style={{ fontSize: "clamp(28px, 4vw, 48px)", letterSpacing: "-0.02em" }}
           >
             {t("headline")}
@@ -45,19 +39,11 @@ export function FaqSection() {
         </div>
 
         {/* Accordion */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           {FAQS.map((faq, i) => (
             <div
               key={i}
-              className="faq-item rounded-xl overflow-hidden"
-              style={{
-                border: open === i
-                  ? "1px solid rgba(73,121,239,0.28)"
-                  : "1px solid rgba(255,255,255,0.07)",
-                background: open === i
-                  ? "rgba(73,121,239,0.04)"
-                  : "rgba(255,255,255,0.025)",
-              }}
+              className={`rounded-2xl overflow-hidden transition-all duration-300 ${open === i ? "bg-white shadow-figma-card border-transparent" : "bg-white border border-[#E6E9EF] shadow-sm hover:border-[#D1D9EE]"}`}
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
@@ -65,24 +51,20 @@ export function FaqSection() {
                 aria-expanded={open === i}
               >
                 <span
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: open === i ? "white" : "rgba(255,255,255,0.72)",
-                    lineHeight: 1.4,
-                  }}
+                  className={`text-[15px] font-bold ${open === i ? "text-[#6161FF]" : "text-[#323338]"}`}
+                  style={{ lineHeight: 1.4 }}
                 >
                   {faq.q}
                 </span>
                 <span
-                  className="faq-icon flex-shrink-0 ml-5"
+                  className="flex-shrink-0 ml-5 transition-transform duration-300"
                   style={{ transform: open === i ? "rotate(45deg)" : "rotate(0deg)" }}
                 >
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
                     <path
                       d="M9 4v10M4 9h10"
-                      stroke={open === i ? "#7BA4FF" : "rgba(255,255,255,0.32)"}
-                      strokeWidth="1.6"
+                      stroke={open === i ? "#6161FF" : "#A0A3AF"}
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                   </svg>
@@ -90,13 +72,9 @@ export function FaqSection() {
               </button>
 
               {open === i && (
-                <div className="px-6 pb-5 faq-answer">
+               <div className="px-6 pb-6">
                   <p
-                    style={{
-                      fontSize: 14,
-                      color: "rgba(255,255,255,0.50)",
-                      lineHeight: 1.78,
-                    }}
+                    className="text-sm font-medium text-[#676879] leading-relaxed"
                   >
                     {faq.a}
                   </p>

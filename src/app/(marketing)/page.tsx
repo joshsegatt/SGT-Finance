@@ -4,8 +4,6 @@ import { SocialProofSection } from "@/components/marketing/social-proof";
 import { FeaturesSection } from "@/components/marketing/features-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works";
 import { TestimonialsSection } from "@/components/marketing/testimonials";
-import { PricingSection } from "@/components/marketing/pricing-section";
-import { FaqSection } from "@/components/marketing/faq";
 import { CtaSection } from "@/components/marketing/cta-section";
 
 export const metadata: Metadata = {
@@ -28,8 +26,6 @@ export default function MarketingPage() {
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />
-      <PricingSection />
-      <FaqSection />
       <CtaSection />
     </main>
   );

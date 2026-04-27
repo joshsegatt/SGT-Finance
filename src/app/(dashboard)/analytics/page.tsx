@@ -25,7 +25,21 @@ function periodToMonths(period?: string): number {
   }
 }
 
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { hasFeatureAccess } from "@/lib/plans";
+import { UpgradeRequired } from "@/components/upgrade-required";
+import { Plan } from "@prisma/client";
+
 export default async function AnalyticsPage({ searchParams }: PageProps) {
+  const session = await auth();
+  const user = session?.user?.id ? await db.user.findUnique({ where: { id: session.user.id } }) : null;
+  const currentPlan = user?.plan ?? Plan.FREE;
+
+  if (!hasFeatureAccess(currentPlan, "analytics")) {
+    return <UpgradeRequired plan={currentPlan} />;
+  }
+
   const params = await searchParams;
   const months = periodToMonths(params.period);
 
@@ -71,7 +85,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
       </div>
 
       {/* Financial Health Panel */}
-      <FinancialHealthPanel stats={burnStats} />
+      <FinancialHealthPanel stats={burnStats} plan={currentPlan} />
 
       {/* Cash Flow Chart */}
       <div className="bg-card/80 rounded-xl border border-border p-6 shadow-md">

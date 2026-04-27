@@ -10,11 +10,18 @@ export const metadata = {
   description: "Connected bank accounts, balances and sync status.",
 };
 
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export default async function AccountsPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
   const [accounts, t, entities, fx] = await Promise.all([
-    getAccounts(),
+    getAccounts(userId),
     getTranslations("Accounts"),
-    getEntities(),
+    getEntities(userId),
     getFxRates(),
   ]);
 

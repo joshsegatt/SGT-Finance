@@ -2,18 +2,25 @@ import "server-only";
 import { db } from "@/lib/db";
 import { startOfMonth, subMonths, format } from "date-fns";
 import { getFxRates } from "@/lib/fx";
+import { getAggregatedTaxSummary, getFinancialMix } from "@/lib/tax-engine";
+import { getForecastChartData } from "@/lib/forecast";
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
-export async function getDashboardKPIs() {
-  const [accounts, invoices, alerts, fx] = await Promise.all([
-    db.bankAccount.findMany({ select: { balance: true, accountType: true, currency: true } }),
+export async function getDashboardKPIs(userId: string) {
+  const [accounts, invoices, alerts, fx, taxSummary, financialMix] = await Promise.all([
+    db.bankAccount.findMany({ 
+      where: { entity: { userId } },
+      select: { balance: true, accountType: true, currency: true } 
+    }),
     db.invoice.findMany({
-      where: { status: "OVERDUE" },
+      where: { entity: { userId }, status: "OVERDUE" },
       include: { lines: true },
     }),
-    db.alert.findMany({ where: { isRead: false } }),
+    db.alert.findMany({ where: { userId, isRead: false } }),
     getFxRates(),
+    getAggregatedTaxSummary(userId),
+    getFinancialMix(userId),
   ]);
 
   const toGbp = (amount: number, currency: string) =>
@@ -28,7 +35,8 @@ export async function getDashboardKPIs() {
     .filter((a) => a.accountType === "SAVINGS")
     .reduce((sum, a) => sum + toGbp(a.balance, a.currency), 0);
 
-  const taxExposure = totalBalance * 0.065; // 6.5% effective rate estimate
+  // Real tax exposure from tax engine (replaces hardcoded 6.5%)
+  const taxExposure = taxSummary.totals.totalExposure;
 
   const overdueInvoicesTotal = invoices.reduce(
     (sum, inv) => sum + inv.lines.reduce((s, l) => s + l.amount, 0),
@@ -39,16 +47,26 @@ export async function getDashboardKPIs() {
     totalBalance,
     cashReserve,
     taxExposure,
+    taxProvision: {
+      effectiveRate: taxSummary.totals.effectiveRate,
+      provisionedPct: taxSummary.totals.provisionedPct,
+      corporateTaxDue: taxSummary.totals.corporateTaxDue,
+      vatPayable: taxSummary.totals.vatPayable,
+    },
+    financialMix,
     overdueInvoicesCount: invoices.length,
     overdueInvoicesTotal,
     unreadAlerts: alerts.length,
   };
 }
 
-export async function getMonthlyTransactions(months: number = 6) {
+export async function getMonthlyTransactions(userId: string, months: number = 6) {
   const [start, fx] = [startOfMonth(subMonths(new Date(), months - 1)), await getFxRates()];
   const txs = await db.transaction.findMany({
-    where: { date: { gte: start } },
+    where: { 
+      account: { entity: { userId } },
+      date: { gte: start } 
+    },
     select: { date: true, amount: true, currency: true },
     orderBy: { date: "asc" },
   });
@@ -72,8 +90,9 @@ export async function getMonthlyTransactions(months: number = 6) {
   return Array.from(map.entries()).map(([month, v]) => ({ month, ...v }));
 }
 
-export async function getRecentTransactions(limit: number = 8) {
+export async function getRecentTransactions(userId: string, limit: number = 8) {
   return db.transaction.findMany({
+    where: { account: { entity: { userId } } },
     take: limit,
     orderBy: { date: "desc" },
     include: { account: { include: { entity: true } } },
@@ -83,10 +102,11 @@ export async function getRecentTransactions(limit: number = 8) {
 // ─── Smart Alerts ─────────────────────────────────────────────────────────────
 
 /** Auto-mark invoices as OVERDUE when dueDate has passed */
-async function autoMarkOverdueInvoices() {
+async function autoMarkOverdueInvoices(userId: string) {
   const today = new Date();
   await db.invoice.updateMany({
     where: {
+      entity: { userId },
       dueDate: { lt: today },
       status: { in: ["DRAFT", "SENT"] },
     },
@@ -94,25 +114,25 @@ async function autoMarkOverdueInvoices() {
   });
 }
 
-async function syncSmartAlerts() {
+async function syncSmartAlerts(userId: string) {
   const today = new Date();
   const in30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   const [overdueInvoices, upcomingDeadlines, wastedSubs] = await Promise.all([
     db.invoice.findMany({
-      where: { dueDate: { lt: today }, status: { notIn: ["PAID", "CANCELLED"] } },
+      where: { entity: { userId }, dueDate: { lt: today }, status: { notIn: ["PAID", "CANCELLED"] } },
       include: { client: true },
       take: 8,
       orderBy: { dueDate: "asc" },
     }),
     db.taxDeadline.findMany({
-      where: { date: { gte: today, lte: in30Days }, status: { not: "COMPLETED" } },
+      where: { taxProfile: { entity: { userId } }, date: { gte: today, lte: in30Days }, status: { not: "COMPLETED" } },
       include: { taxProfile: { include: { entity: true } } },
       take: 8,
       orderBy: { date: "asc" },
     }),
     db.subscription.findMany({
-      where: { wasteDetected: true, status: "ACTIVE" },
+      where: { userId, wasteDetected: true, status: "ACTIVE" },
       take: 5,
     }),
   ]);
@@ -146,7 +166,7 @@ async function syncSmartAlerts() {
       const desc = `Invoice ${inv.number} to ${inv.client.name} is overdue by ${daysOverdue} day${daysOverdue !== 1 ? "s" : ""}.`;
       return db.alert.upsert({
         where: { id: `smart-inv-${inv.id}` },
-        create: { id: `smart-inv-${inv.id}`, title: "Overdue Invoice", description: desc, type: "OVERDUE" },
+        create: { id: `smart-inv-${inv.id}`, userId, title: "Overdue Invoice", description: desc, type: "OVERDUE" },
         update: { description: desc },
       });
     }),
@@ -158,7 +178,7 @@ async function syncSmartAlerts() {
       const desc = `${dl.title} for ${dl.taxProfile.entity.name} is due in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`;
       return db.alert.upsert({
         where: { id: `smart-dl-${dl.id}` },
-        create: { id: `smart-dl-${dl.id}`, title: "Tax Deadline Approaching", description: desc, type: "DEADLINE" },
+        create: { id: `smart-dl-${dl.id}`, userId, title: "Tax Deadline Approaching", description: desc, type: "DEADLINE" },
         update: { description: desc },
       });
     }),
@@ -166,7 +186,7 @@ async function syncSmartAlerts() {
       const desc = `${sub.name} hasn't seen recent activity. Consider cancelling to save ${new Intl.NumberFormat("en-GB", { style: "currency", currency: sub.currency.toUpperCase(), maximumFractionDigits: 0 }).format(sub.amount)}/mo.`;
       return db.alert.upsert({
         where: { id: `smart-sub-${sub.id}` },
-        create: { id: `smart-sub-${sub.id}`, title: "Unused Subscription Detected", description: desc, type: "WASTE" },
+        create: { id: `smart-sub-${sub.id}`, userId, title: "Unused Subscription Detected", description: desc, type: "WASTE" },
         update: { description: desc },
       });
     }),
@@ -175,10 +195,11 @@ async function syncSmartAlerts() {
   await Promise.all(ops);
 }
 
-export async function getAlerts() {
-  await autoMarkOverdueInvoices();
-  await syncSmartAlerts();
+export async function getAlerts(userId: string) {
+  await autoMarkOverdueInvoices(userId);
+  await syncSmartAlerts(userId);
   return db.alert.findMany({
+    where: { userId },
     orderBy: [{ isRead: "asc" }, { createdAt: "desc" }],
   });
 }
@@ -199,7 +220,7 @@ export type TransactionFilters = {
 
 const PAGE_SIZE = 50;
 
-export async function getTransactions(filters: TransactionFilters = {}) {
+export async function getTransactions(userId: string, filters: TransactionFilters = {}) {
   const { search, category, status, accountId, from, to, sort = "date", order = "desc", page = 1 } = filters;
 
   const validSortFields = ["date", "amount", "description", "category", "status"] as const;
@@ -209,6 +230,7 @@ export async function getTransactions(filters: TransactionFilters = {}) {
   const sortOrder = order === "asc" ? "asc" : "desc";
 
   const where = {
+    account: { entity: { userId } },
     ...(search ? { description: { contains: search, mode: "insensitive" as const } } : {}),
     ...(category && category !== "all" ? { category } : {}),
     ...(status && status !== "all" ? { status } : {}),
@@ -237,24 +259,25 @@ export async function getTransactions(filters: TransactionFilters = {}) {
   return { items, total, page, pageSize: PAGE_SIZE, totalPages: Math.ceil(total / PAGE_SIZE) };
 }
 
-export async function getTransactionById(id: string) {
-  return db.transaction.findUnique({
-    where: { id },
+export async function getTransactionById(userId: string, id: string) {
+  return db.transaction.findFirst({
+    where: { id, account: { entity: { userId } } },
     include: { account: { include: { entity: true } }, subscription: true },
   });
 }
 
-export async function getTransactionCategories() {
+export async function getTransactionCategories(userId: string) {
   const txs = await db.transaction.findMany({
     select: { category: true },
     distinct: ["category"],
-    where: { category: { not: null } },
+    where: { account: { entity: { userId } }, category: { not: null } },
   });
   return txs.map((t) => t.category).filter(Boolean) as string[];
 }
 
-export async function getBankAccounts() {
+export async function getBankAccounts(userId: string) {
   return db.bankAccount.findMany({
+    where: { entity: { userId } },
     include: { entity: true, connection: true },
     orderBy: { name: "asc" },
   });
@@ -262,10 +285,10 @@ export async function getBankAccounts() {
 
 // ─── Invoices ────────────────────────────────────────────────────────────────
 
-export async function getInvoiceAging() {
+export async function getInvoiceAging(userId: string) {
   const today = new Date();
   const unpaid = await db.invoice.findMany({
-    where: { status: { notIn: ["PAID", "CANCELLED", "DRAFT"] } },
+    where: { entity: { userId }, status: { notIn: ["PAID", "CANCELLED", "DRAFT"] } },
     include: { client: true, lines: { select: { amount: true, taxRate: true } } },
     orderBy: { dueDate: "asc" },
   });
@@ -300,10 +323,11 @@ export async function getInvoiceAging() {
   return buckets;
 }
 
-export async function getInvoices(filters: { status?: string; clientId?: string } = {}) {
+export async function getInvoices(userId: string, filters: { status?: string; clientId?: string } = {}) {
   const { status, clientId } = filters;
   return db.invoice.findMany({
     where: {
+      entity: { userId },
       ...(status && status !== "all" ? { status } : {}),
       ...(clientId && clientId !== "all" ? { clientId } : {}),
     },
@@ -312,17 +336,18 @@ export async function getInvoices(filters: { status?: string; clientId?: string 
   });
 }
 
-export async function getInvoiceById(id: string) {
-  return db.invoice.findUnique({
-    where: { id },
+export async function getInvoiceById(userId: string, id: string) {
+  return db.invoice.findFirst({
+    where: { id, entity: { userId } },
     include: { client: true, entity: true, lines: true },
   });
 }
 
 // ─── Subscriptions ───────────────────────────────────────────────────────────
 
-export async function getSubscriptions() {
+export async function getSubscriptions(userId: string) {
   return db.subscription.findMany({
+    where: { userId },
     orderBy: { amount: "desc" },
     include: { transactions: { take: 1, orderBy: { date: "desc" } } },
   });
@@ -330,8 +355,9 @@ export async function getSubscriptions() {
 
 // ─── Tax ─────────────────────────────────────────────────────────────────────
 
-export async function getTaxSummary() {
+export async function getTaxSummary(userId: string) {
   return db.entity.findMany({
+    where: { userId },
     include: {
       taxProfile: { include: { deadlines: { orderBy: { date: "asc" } } } },
       bankAccounts: { select: { balance: true, currency: true } },
@@ -342,16 +368,17 @@ export async function getTaxSummary() {
 
 // ─── Clients ─────────────────────────────────────────────────────────────────
 
-export async function getClients(search?: string) {
+export async function getClients(userId: string, search?: string) {
   const clients = await db.client.findMany({
-    where: search
-      ? {
+    where: {
+      userId,
+      ...(search ? {
           OR: [
             { name: { contains: search, mode: "insensitive" } },
             { email: { contains: search, mode: "insensitive" } },
           ],
-        }
-      : undefined,
+        } : {}),
+    },
     include: {
       _count: { select: { entities: true, invoices: true } },
       invoices: {
@@ -378,9 +405,9 @@ export async function getClients(search?: string) {
   });
 }
 
-export async function getClientById(id: string) {
-  return db.client.findUnique({
-    where: { id },
+export async function getClientById(userId: string, id: string) {
+  return db.client.findFirst({
+    where: { id, userId },
     include: {
       entities: { include: { bankAccounts: true } },
       invoices: { include: { lines: true }, orderBy: { date: "desc" } },
@@ -390,8 +417,9 @@ export async function getClientById(id: string) {
 
 // ─── Accounts ────────────────────────────────────────────────────────────────
 
-export async function getAccounts() {
+export async function getAccounts(userId: string) {
   return db.bankAccount.findMany({
+    where: { entity: { userId } },
     include: { entity: true, connection: true },
     orderBy: [{ entity: { name: "asc" } }, { name: "asc" }],
   });
@@ -403,10 +431,10 @@ export async function getCashFlowReport(months: number = 12) {
   return getMonthlyTransactions(months);
 }
 
-export async function getBurnRateStats() {
+export async function getBurnRateStats(userId: string) {
   // Use last 3 months of transactions for burn rate
   const [monthly, fx] = await Promise.all([
-    getMonthlyTransactions(4),
+    getMonthlyTransactions(userId, 4),
     getFxRates(),
   ]);
 
@@ -417,7 +445,7 @@ export async function getBurnRateStats() {
 
   // Get total liquid balance
   const accounts = await db.bankAccount.findMany({
-    where: { accountType: { in: ["CURRENT", "SAVINGS"] } },
+    where: { entity: { userId }, accountType: { in: ["CURRENT", "SAVINGS"] } },
     select: { balance: true, currency: true },
   });
   const totalBalance = accounts.reduce((s, a) => s + a.balance * (fx[a.currency] ?? 1), 0);
@@ -438,9 +466,9 @@ export async function getBurnRateStats() {
   return { burnRate, incomeRate, netMonthly, runway, totalBalance, incomeChange };
 }
 
-export async function getTopClientsByRevenue(limit = 5) {
+export async function getTopClientsByRevenue(userId: string, limit = 5) {
   const invoices = await db.invoice.findMany({
-    where: { status: { in: ["PAID", "SENT", "OVERDUE"] } },
+    where: { entity: { userId }, status: { in: ["PAID", "SENT", "OVERDUE"] } },
     select: {
       clientId: true,
       client: { select: { name: true } },
@@ -463,11 +491,11 @@ export async function getTopClientsByRevenue(limit = 5) {
     .slice(0, limit);
 }
 
-export async function getCategoryReport() {
+export async function getCategoryReport(userId: string) {
   const [txs, fx] = await Promise.all([
     db.transaction.findMany({
       select: { category: true, amount: true, currency: true },
-      where: { category: { not: null } },
+      where: { account: { entity: { userId } }, category: { not: null } },
     }),
     getFxRates(),
   ]);
@@ -487,8 +515,8 @@ export async function getCategoryReport() {
     .sort((a, b) => b.expense + b.income - (a.expense + a.income));
 }
 
-export async function getEntities() {
-  return db.entity.findMany({ orderBy: { name: "asc" } });
+export async function getEntities(userId: string) {
+  return db.entity.findMany({ where: { userId }, orderBy: { name: "asc" } });
 }
 
 // ─── Settings ────────────────────────────────────────────────────────────────

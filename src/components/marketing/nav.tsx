@@ -2,17 +2,24 @@
 
 import Link from "next/link";
 import { useState, useEffect, useTransition } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { setLocale } from "@/lib/actions";
+import { motion } from "framer-motion";
 
+/* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────────────────── */
 const LOCALES = [
   { code: "en", label: "EN", flag: "🇬🇧" },
   { code: "pt", label: "PT", flag: "🇧🇷" },
   { code: "fr", label: "FR", flag: "🇫🇷" },
 ] as const;
 
+/* ─────────────────────────────────────────────────────────
+   LANGUAGE SWITCHER (premium pill)
+   ───────────────────────────────────────────────────────── */
 function MarketingLangSwitcher() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -39,33 +46,24 @@ function MarketingLangSwitcher() {
       <button
         disabled={pending}
         aria-label="Change language"
-        className="flex items-center gap-1.5 text-sm font-semibold px-2 py-1.5 rounded-lg transition-colors"
-        style={{ color: "rgba(255,255,255,0.45)", background: "transparent" }}
+        className="flex items-center gap-1.5 text-[13px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-foreground/5"
       >
-        <span>{current.flag}</span>
+        <span className="text-sm">{current.flag}</span>
         <span>{current.label}</span>
+        <ChevronDown className="w-3 h-3 opacity-40" />
       </button>
       <div
-        className="absolute right-0 top-full mt-1 z-50 hidden group-hover:flex group-focus-within:flex flex-col rounded-xl overflow-hidden py-1"
-        style={{
-          background: "rgba(8,14,28,0.98)",
-          border: "1px solid rgba(255,255,255,0.10)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
-          minWidth: 108,
-        }}
+        className="absolute right-0 top-full mt-2 z-50 hidden group-hover:flex group-focus-within:flex flex-col rounded-[14px] overflow-hidden py-1.5 bg-background border border-border shadow-xl min-w-[120px]"
       >
         {LOCALES.map(({ code, label, flag }) => (
           <button
             key={code}
             onClick={() => handleSelect(code)}
-            className="flex items-center gap-2.5 px-3 py-2 text-sm transition-colors w-full text-left"
-            style={{
-              background: code === currentLocale ? "rgba(73,121,239,0.12)" : "transparent",
-              color: code === currentLocale ? "#7BA4FF" : "rgba(255,255,255,0.50)",
-              fontWeight: code === currentLocale ? 700 : 500,
-            }}
+            className={`flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-all duration-150 w-full text-left ${
+              code === currentLocale ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-foreground/5"
+            }`}
           >
-            <span>{flag}</span>
+            <span className="text-sm">{flag}</span>
             <span>{label}</span>
           </button>
         ))}
@@ -74,6 +72,9 @@ function MarketingLangSwitcher() {
   );
 }
 
+/* ─────────────────────────────────────────────────────────
+   MAIN NAV
+   ───────────────────────────────────────────────────────── */
 export function MarketingNav() {
   const t = useTranslations("Marketing.nav");
   const [scrolled, setScrolled] = useState(false);
@@ -86,128 +87,141 @@ export function MarketingNav() {
   ];
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 24);
+    const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out"
       style={{
-        background: scrolled ? "rgba(5,10,20,0.92)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
-        boxShadow: scrolled ? "0 4px 40px rgba(0,0,0,0.4)" : "none",
+        paddingTop: scrolled ? 0 : 16,
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 h-[68px] flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-          <svg className="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#4979EF" />
-            <rect x="6" y="18" width="4" height="8" rx="1.5" fill="white" fillOpacity="0.5" />
-            <rect x="12" y="13" width="4" height="13" rx="1.5" fill="white" fillOpacity="0.75" />
-            <rect x="18" y="8" width="4" height="18" rx="1.5" fill="white" />
-            <path d="M7 14L13 10L19 6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="19" cy="6" r="1.5" fill="white" />
-          </svg>
-          <span className="font-bold text-white text-lg tracking-tight group-hover:text-white/90 transition-colors">
-            SGT Finance
-          </span>
-        </Link>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/[0.07] transition-all duration-150"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-2">
-          <MarketingLangSwitcher />
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150"
-          >
-            {t("login")}
-          </Link>
-          <Link
-            href="/register"
-            className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200"
-            style={{
-              background: "linear-gradient(135deg, #4979EF, #3B6CE0)",
-              boxShadow: "0 0 20px rgba(73,121,239,0.35)",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 32px rgba(73,121,239,0.6)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(73,121,239,0.35)";
-            }}
-          >
-            {t("cta")}
-          </Link>
-        </div>
-
-        {/* Mobile burger */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {/* Mobile menu */}
-      {open && (
+      <div
+        className="mx-auto transition-all duration-500 ease-in-out"
+        style={{
+          maxWidth: scrolled ? "100%" : "1200px",
+          paddingLeft: scrolled ? 0 : 20,
+          paddingRight: scrolled ? 0 : 20,
+        }}
+      >
         <div
-          className="md:hidden px-4 pb-5 space-y-1"
+          className={`transition-all duration-500 ease-in-out ${
+            scrolled
+              ? "bg-background/80 backdrop-blur-md border-b border-border"
+              : "bg-background/40 backdrop-blur-sm border border-border/50"
+          }`}
           style={{
-            background: "rgba(5,10,20,0.98)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: scrolled ? "0" : "20px",
+            boxShadow: scrolled
+              ? "none"
+              : "0 8px 32px -4px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.1)",
           }}
         >
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="block px-4 py-3 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/[0.07] transition-all"
-            >
-              {link.label}
+          <div className="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
+            {/* ── Corporate Logo ── */}
+            <Link href="/" className="flex items-center gap-3 shrink-0 group">
+              <div className="relative">
+                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4L4 8L12 12L20 8L12 4Z" stroke="currentColor" className="text-primary-foreground" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 12L12 16L20 12" stroke="currentColor" className="text-primary-foreground" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 16L12 20L20 16" stroke="currentColor" className="text-primary-foreground" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-background shadow-sm" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading font-black text-foreground text-[18px] leading-none tracking-[-0.03em] uppercase">
+                  SGT<span className="text-primary">.</span>
+                </span>
+                <span className="text-[9px] font-bold text-muted-foreground tracking-[0.2em] uppercase leading-none mt-1">
+                  Finance
+                </span>
+              </div>
             </Link>
-          ))}
-          <div className="pt-3 flex flex-col gap-2.5">
-            <div className="flex justify-center pb-1">
-              <MarketingLangSwitcher />
+
+            {/* ── Desktop Nav ── */}
+            <div className="hidden md:flex items-center gap-1">
+              {LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="px-4 py-2 text-[13px] font-bold text-muted-foreground hover:text-foreground rounded-lg transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="px-4 py-3 text-sm text-center font-medium text-white/60 border border-white/10 rounded-xl hover:bg-white/[0.05] transition-all"
+
+            {/* ── Action Buttons ── */}
+            <div className="hidden md:flex items-center gap-4">
+              <MarketingLangSwitcher />
+              <div className="h-4 w-px bg-border" />
+              <Link
+                href="/login"
+                className="text-[13px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {t("login")}
+              </Link>
+              <Link
+                href="/register"
+                className="px-5 py-2.5 text-[13px] font-bold text-white bg-gradient-to-r from-[#6366F1] to-[#4F46E5] rounded-xl hover:opacity-90 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.25)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.35)] hover:-translate-y-0.5 active:translate-y-0"
+              >
+                {t("cta")}
+              </Link>
+            </div>
+
+            {/* ── Mobile Burger ── */}
+            <button
+              onClick={() => setOpen(!open)}
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl text-foreground hover:bg-foreground/5 transition-colors"
             >
-              {t("login")}
-            </Link>
+              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Mobile Drawer ── */}
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden mt-2 p-4 rounded-2xl bg-background/95 backdrop-blur-xl border border-border shadow-2xl flex flex-col gap-2"
+          >
+            {LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 text-[15px] font-bold text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-xl transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="h-px bg-border my-2" />
+            <div className="flex items-center justify-between px-4 py-2">
+              <MarketingLangSwitcher />
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="text-[14px] font-bold text-foreground"
+              >
+                {t("login")}
+              </Link>
+            </div>
             <Link
               href="/register"
               onClick={() => setOpen(false)}
-              className="px-4 py-3 text-sm text-center font-bold text-white rounded-xl transition-all"
-              style={{ background: "linear-gradient(135deg, #4979EF, #3B6CE0)" }}
+              className="mt-2 w-full py-4 text-center text-[14px] font-bold bg-primary text-primary-foreground rounded-xl shadow-lg"
             >
               {t("cta")}
             </Link>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </div>
     </nav>
   );
 }

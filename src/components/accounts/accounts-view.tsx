@@ -8,7 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
 import { syncBankAccount } from "@/lib/actions";
-import { RefreshCw, Unlink } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Landmark, RefreshCw, Unlink } from "lucide-react";
 
 type Account = {
   id: string;
@@ -103,8 +104,20 @@ export function AccountsView({ accounts }: AccountsViewProps) {
         <TableBody>
           {accounts.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-                No accounts found
+              <TableCell colSpan={8} className="p-0 border-none">
+                <EmptyState
+                  icon={Landmark}
+                  title="No bank accounts connected"
+                  description="Connect your first bank account to start tracking your finances automatically."
+                  action={{
+                    label: "Connect Bank",
+                    onClick: () => {
+                      const btn = document.querySelector('[data-connect-bank]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }
+                  }}
+                  className="bg-muted/5 border-none"
+                />
               </TableCell>
             </TableRow>
           ) : (

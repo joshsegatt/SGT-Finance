@@ -50,6 +50,11 @@ enum Plan {
   BUSINESS
 }
 
+enum EntityScope {
+  BUSINESS
+  PERSONAL
+}
+
 model User {
   id                   String    @id @default(cuid())
   name                 String?
@@ -64,10 +69,33 @@ model User {
   stripePriceId        String?
   stripeCurrentPeriodEnd DateTime?
   onboardingCompleted  Boolean   @default(false)
+  apiKey               String?   @unique
   accounts             Account[]
   sessions             Session[]
+  entities             Entity[]
+  clients              Client[]
+  bankConnections      BankConnection[]
+  subscriptions        Subscription[]
+  alerts               Alert[]
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?
+  auditLogs            AuditLog[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
 }
 
 model VerificationToken {
@@ -86,6 +114,8 @@ model Client {
   email       String?
   phone       String?
   status      String    @default("ACTIVE")
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   entities    Entity[]
   invoices    Invoice[]
   createdAt   DateTime  @default(now())
@@ -100,7 +130,10 @@ model Entity {
   country      String
   currency     String        @default("USD")
   taxId        String?
+  scope        EntityScope   @default(BUSINESS)
   client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   bankAccounts BankAccount[]
   invoices     Invoice[]
   taxProfile   TaxProfile?
@@ -119,6 +152,8 @@ model BankConnection {
   refreshToken  String?
   status        String        @default("ACTIVE")
   lastSync      DateTime?
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   accounts      BankAccount[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -155,6 +190,7 @@ model Transaction {
   taxRelevant    Boolean       @default(false)
   isSubscription Boolean       @default(false)
   externalId     String?
+  scope          EntityScope?  // Override: if null, inherits from Entity.scope
   account        BankAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
   subscriptionId String?
@@ -174,6 +210,8 @@ model Subscription {
   status          String        @default("ACTIVE")
   wasteDetected   Boolean       @default(false)
   nextBillingDate DateTime?
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions    Transaction[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -208,16 +246,20 @@ model InvoiceLine {
 }
 
 model TaxProfile {
-  id               String        @id @default(cuid())
-  entityId         String        @unique
-  fiscalYearStart  DateTime?
-  fiscalYearEnd    DateTime?
-  vatNumber        String?
-  corporateTaxRate Float?
-  entity           Entity        @relation(fields: [entityId], references: [id], onDelete: Cascade)
-  deadlines        TaxDeadline[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  entityId          String        @unique
+  fiscalYearStart   DateTime?
+  fiscalYearEnd     DateTime?
+  vatNumber         String?
+  corporateTaxRate  Float?
+  vatRate           Float?        // VAT rate: 20% UK, 23% PT, 19% DE, etc.
+  taxRegime         String?       // "UK_CORP", "PT_IRC", "DE_KSTG", "SIMPLES", etc.
+  provisionedAmount Float         @default(0) // Amount already set aside for taxes
+  customLogoUrl     String?
+  entity            Entity        @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  deadlines         TaxDeadline[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model TaxDeadline {
@@ -239,5 +281,7 @@ model Alert {
   description String
   type        String
   isRead      Boolean  @default(false)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 }

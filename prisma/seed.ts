@@ -69,6 +69,7 @@ async function main() {
       country: "UK",
       currency: "GBP",
       taxId: "GB123456789",
+      scope: "BUSINESS",
     },
   });
 
@@ -79,16 +80,17 @@ async function main() {
       country: "Portugal",
       currency: "EUR",
       taxId: "PT987654321",
+      scope: "BUSINESS",
     },
   });
 
   const entityDE = await prisma.entity.create({
     data: {
-      name: "SGT GmbH",
-      type: "GMBH",
+      name: "SGT Personal",
+      type: "INDIVIDUAL",
       country: "Germany",
       currency: "EUR",
-      taxId: "DE112233445",
+      scope: "PERSONAL",
     },
   });
 
@@ -98,6 +100,9 @@ async function main() {
       entityId: entityPT.id,
       vatNumber: "PT987654321",
       corporateTaxRate: 21.0,
+      vatRate: 23.0,
+      taxRegime: "PT_IRC",
+      provisionedAmount: 3200,
       deadlines: {
         create: [
           { title: "Monthly VAT Return", date: new Date("2026-05-20"), type: "VAT", status: "PENDING" },
@@ -112,6 +117,9 @@ async function main() {
       entityId: entityUK.id,
       vatNumber: "GB123456789",
       corporateTaxRate: 25.0,
+      vatRate: 20.0,
+      taxRegime: "UK_CORP",
+      provisionedAmount: 5800,
       deadlines: {
         create: [
           { title: "Q1 VAT Return", date: new Date("2026-05-07"), type: "VAT", status: "PENDING" },

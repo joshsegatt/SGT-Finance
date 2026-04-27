@@ -1,343 +1,451 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
-function DashboardPreview() {
-  const alerts = [
-    { color: "#fbbf24", text: "IVA T1 · Prazo em 5 dias" },
-    { color: "#60a5fa", text: "3 faturas aguardam pagamento" },
-    { color: "#34d399", text: "Sync bancário concluído" },
-    { color: "#f87171", text: "Fatura #INV-088 em atraso" },
-  ];
+/* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────────────────── */
+const COLORS = {
+  bg: "#F9FAFB",
+  card: "#FFFFFF",
+  indigo: "#6366F1",
+  indigoBg: "rgba(99,102,241,0.08)",
+  emerald: "#10B981",
+  emeraldBg: "rgba(16,185,129,0.08)",
+  text: "#111827",
+  textMuted: "#6B7280",
+  textFaint: "#9CA3AF",
+  border: "rgba(0,0,0,0.06)",
+};
 
-  const transactions = [
-    { name: "Fornecedor ABC Lda", cat: "Fornecedores · Millennium", amount: "−€1.240,00", neg: true, date: "hoje, 09:32" },
-    { name: "Cliente XYZ SA", cat: "Receita · BPI Business", amount: "+€4.500,00", neg: false, date: "ontem, 17:14" },
-    { name: "Stripe Subscription", cat: "Software · Revolut", amount: "−€89,00", neg: true, date: "há 2 dias" },
-  ];
+const CARD_SHADOW =
+  "0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)";
+const CARD_SHADOW_LG =
+  "0 20px 40px -8px rgba(0,0,0,0.07), 0 8px 16px -4px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.03)";
+const CARD_SHADOW_FLOAT =
+  "0 24px 48px -12px rgba(0,0,0,0.10), 0 12px 24px -8px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)";
 
-  const bars = [
-    { m: "Nov", i: 62, e: 45 }, { m: "Dez", i: 78, e: 52 },
-    { m: "Jan", i: 51, e: 39 }, { m: "Fev", i: 88, e: 57 },
-    { m: "Mar", i: 72, e: 50 }, { m: "Abr", i: 100, e: 63 },
-  ];
+/* ─────────────────────────────────────────────────────────
+   FLOATING CARD WRAPPER
+   ───────────────────────────────────────────────────────── */
+function FloatCard({
+  children,
+  className = "",
+  delay = 0,
+  shadow = CARD_SHADOW,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  shadow?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={`bg-white rounded-[24px] ${className}`}
+      style={{
+        boxShadow: shadow,
+        border: `1px solid ${COLORS.border}`,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
+/* ─────────────────────────────────────────────────────────
+   MAIN DASHBOARD CARD (center/right, perspective)
+   ───────────────────────────────────────────────────────── */
+function DashboardCard() {
   const kpis = [
-    { label: "SALDO TOTAL", value: "€124.500", sub: "+12.4% vs mês anterior", accent: "#4979EF" },
-    { label: "RESERVA CAIXA", value: "€32.100", sub: "+8.2% vs mês anterior", accent: "#22c55e" },
-    { label: "EXPOSIÇÃO IVA", value: "€6.834", sub: "T2 2026 · estimativa", accent: "#4979EF" },
-    { label: "FATURAS ATRASO", value: "3", sub: "€12.400 em aberto", accent: "#f59e0b" },
-  ];
-
-  const navItems = [
-    { label: "Dashboard", active: true },
-    { label: "Analytics" }, { label: "Transações" },
-    { label: "Faturas" }, { label: "Recorrentes" },
-    { label: "Impostos" }, { label: "Clientes" },
-    { label: "Contas" }, { label: "Relatórios" },
+    { label: "TOTAL BALANCE", value: "£158,338.59", sub: "Across all accounts", badge: "+12%", badgeColor: COLORS.emerald, badgeBg: COLORS.emeraldBg },
+    { label: "CASH RESERVE", value: "£9,044.24", sub: "Savings accounts only", badge: "+8.2%", badgeColor: COLORS.emerald, badgeBg: COLORS.emeraldBg },
+    { label: "TAX EXPOSURE", value: "£10,292.01", sub: "Est. effective rate 6.5%", badge: "On track", badgeColor: COLORS.indigo, badgeBg: COLORS.indigoBg },
   ];
 
   return (
-    <div className="flex overflow-hidden select-none" style={{ height: 480 }}>
-      {/* Sidebar */}
-      <div style={{ width: 168, background: "#060B16", borderRight: "1px solid rgba(255,255,255,0.05)", flexShrink: 0, display: "flex", flexDirection: "column" }}>
-        {/* Logo */}
-        <div style={{ height: 48, display: "flex", alignItems: "center", padding: "0 16px", gap: 10, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" style={{ flexShrink: 0 }}>
-            <rect width="32" height="32" rx="8" fill="#4979EF" />
-            <rect x="6" y="18" width="4" height="8" rx="1.5" fill="white" fillOpacity="0.5" />
-            <rect x="12" y="13" width="4" height="13" rx="1.5" fill="white" fillOpacity="0.75" />
-            <rect x="18" y="8" width="4" height="18" rx="1.5" fill="white" />
-            <path d="M7 14L13 10L19 6" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="19" cy="6" r="1.5" fill="white" />
-          </svg>
-          <div>
-            <div style={{ color: "rgba(255,255,255,0.80)", fontWeight: 700, fontSize: 9, letterSpacing: "-0.01em" }}>SGT Finance</div>
-            <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.08em" }}>Command Center</div>
-          </div>
-        </div>
-        {/* Nav */}
-        <div style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              style={{
-                padding: "5px 10px",
-                borderRadius: 6,
-                fontSize: 9,
-                fontWeight: 500,
-                display: "flex",
-                alignItems: "center",
-                gap: 7,
-                color: item.active ? "#7BA4FF" : "rgba(255,255,255,0.28)",
-                background: item.active ? "rgba(73,121,239,0.18)" : "transparent",
-                borderLeft: item.active ? "2px solid #4979EF" : "2px solid transparent",
-              }}
-            >
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: item.active ? "#4979EF" : "rgba(255,255,255,0.15)", flexShrink: 0 }} />
-              {item.label}
+    <div className="p-6 flex flex-col gap-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-9 h-9 rounded-xl bg-[#6366F1] flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4L4 8L12 12L20 8L12 4Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 12L12 16L20 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 16L12 20L20 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-          ))}
-        </div>
-        {/* Upgrade */}
-        <div style={{ padding: 10, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-          <div style={{ borderRadius: 8, padding: "8px 10px", background: "linear-gradient(135deg, rgba(73,121,239,0.25), rgba(124,58,237,0.18))", border: "1px solid rgba(73,121,239,0.20)" }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.80)" }}>Upgrade Pro</div>
-            <div style={{ fontSize: 7, color: "rgba(255,255,255,0.35)", marginTop: 2, lineHeight: 1.3 }}>Analytics + API ilimitados</div>
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-white shadow-sm" />
           </div>
+          <div>
+            <div className="flex flex-col">
+              <span className="font-heading font-black text-[#111827] text-[15px] leading-none tracking-[-0.03em] uppercase">
+                SGT<span className="text-[#6366F1]">.</span>
+              </span>
+              <span className="text-[8px] font-bold text-[#9CA3AF] tracking-[0.2em] uppercase leading-none mt-1">
+                Finance
+              </span>
+            </div>
+            <div className="text-[9px] font-medium text-[#9CA3AF] tracking-wide uppercase mt-1">Command Center</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-7 px-3 bg-[#F3F4F6] rounded-lg flex items-center gap-1.5">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="6" r="4" stroke="#9CA3AF" strokeWidth="1.5" /><path d="M10 10l3 3" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            <span className="text-[10px] text-[#9CA3AF] font-medium">Search...</span>
+          </div>
+          <div className="w-7 h-7 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-[9px] font-bold">SA</div>
         </div>
       </div>
 
-      {/* Main */}
-      <div style={{ flex: 1, background: "#080E1C", display: "flex", flexDirection: "column", minWidth: 0 }}>
-        {/* Topbar */}
-        <div style={{ height: 44, borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", padding: "0 16px", justifyContent: "space-between", flexShrink: 0 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>
-            Dashboard <span style={{ color: "rgba(255,255,255,0.18)" }}>›</span>{" "}
-            <span style={{ color: "rgba(255,255,255,0.60)" }}>Visão Geral</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ height: 24, width: 100, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 6, display: "flex", alignItems: "center", padding: "0 8px", gap: 5 }}>
-              <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"><circle cx="7" cy="7" r="4" /><path d="M11 11l2 2" /></svg>
-              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.22)" }}>Pesquisar...</span>
+      {/* Overview Title */}
+      <div>
+        <div className="text-[16px] font-bold text-[#111827]">Overview</div>
+        <div className="text-[11px] font-medium text-[#9CA3AF]">Complete financial command center</div>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid grid-cols-3 gap-4">
+        {kpis.map((kpi, i) => (
+          <div key={i} className="bg-[#F9FAFB] rounded-[16px] p-4" style={{ border: `1px solid ${COLORS.border}` }}>
+            <div className="text-[8px] font-bold text-[#9CA3AF] uppercase tracking-[0.1em] mb-2">{kpi.label}</div>
+            <div className="text-[18px] font-bold text-[#111827] leading-tight mb-1.5" style={{ fontFeatureSettings: "'tnum'" }}>{kpi.value}</div>
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-medium text-[#9CA3AF]">{kpi.sub}</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md" style={{ color: kpi.badgeColor, background: kpi.badgeBg }}>{kpi.badge}</span>
             </div>
-            <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg, #4979EF, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "white", boxShadow: "0 0 10px rgba(73,121,239,0.4)" }}>JD</div>
           </div>
+        ))}
+      </div>
+
+      {/* Mini Chart Row */}
+      <div className="grid grid-cols-5 gap-4">
+        <div className="col-span-3 bg-[#F9FAFB] rounded-[16px] p-4 flex flex-col" style={{ border: `1px solid ${COLORS.border}` }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[11px] font-bold text-[#111827]">Cash Flow</div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-[9px] font-medium text-[#9CA3AF]"><span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] inline-block" />Income</span>
+              <span className="flex items-center gap-1 text-[9px] font-medium text-[#9CA3AF]"><span className="w-1.5 h-1.5 rounded-full bg-[#10B981] inline-block" />Expenses</span>
+            </div>
+          </div>
+          <svg className="w-full h-[60px]" viewBox="0 0 300 60" fill="none" preserveAspectRatio="none">
+            <path d="M0 50 Q40 42,80 30 T160 18 T240 28 T300 38" stroke="#6366F1" strokeWidth="2" />
+            <path d="M0 50 Q40 42,80 30 T160 18 T240 28 T300 38 V60 H0 Z" fill="url(#cfGrad)" opacity="0.12" />
+            <path d="M0 52 Q40 50,80 45 T160 42 T240 44 T300 48" stroke="#10B981" strokeWidth="1.5" opacity="0.7" />
+            <defs><linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366F1" /><stop offset="100%" stopColor="#6366F1" stopOpacity="0" /></linearGradient></defs>
+          </svg>
         </div>
-
-        {/* Content */}
-        <div style={{ flex: 1, padding: "14px 14px 0", overflow: "hidden", display: "flex", flexDirection: "column", gap: 10 }}>
-          {/* KPIs */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 9 }}>
-            {kpis.map((kpi) => (
-              <div key={kpi.label} style={{ background: "#0E1422", borderRadius: 10, padding: "9px 10px", border: "1px solid rgba(255,255,255,0.055)", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${kpi.accent}70, transparent)` }} />
-                <div style={{ fontSize: 6.5, fontWeight: 700, color: "rgba(255,255,255,0.32)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 5 }}>{kpi.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 900, color: "white", letterSpacing: "-0.02em", lineHeight: 1, marginBottom: 3 }}>{kpi.value}</div>
-                <div style={{ fontSize: 7, color: kpi.accent + "CC" }}>{kpi.sub}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Chart + Alerts */}
-          <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 9, height: 162 }}>
-            {/* Bar chart */}
-            <div style={{ background: "#0E1422", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.055)", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Cash Flow · Últimos 6 Meses</span>
-                <div style={{ display: "flex", gap: 10 }}>
-                  {[{ c: "#4979EF", l: "Receita" }, { c: "rgba(239,68,68,0.5)", l: "Despesa" }].map(x => (
-                    <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: x.c }} />
-                      <span style={{ fontSize: 7, color: "rgba(255,255,255,0.28)" }}>{x.l}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: 6 }}>
-                {bars.map((b) => (
-                  <div key={b.m} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: "100%", display: "flex", gap: 2, alignItems: "flex-end", height: 80 }}>
-                      <div style={{ flex: 1, borderRadius: "2px 2px 0 0", background: "rgba(73,121,239,0.65)", height: `${b.i}%`, minHeight: 4 }} />
-                      <div style={{ flex: 1, borderRadius: "2px 2px 0 0", background: "rgba(239,68,68,0.30)", height: `${b.e}%`, minHeight: 4 }} />
-                    </div>
-                    <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.22)" }}>{b.m}</div>
-                  </div>
-                ))}
-              </div>
+        <div className="col-span-2 bg-[#F9FAFB] rounded-[16px] p-4 flex flex-col gap-2" style={{ border: `1px solid ${COLORS.border}` }}>
+          <div className="text-[11px] font-bold text-[#111827]">Alerts</div>
+          {[
+            { dot: "#EF4444", text: "Overdue Invoice" },
+            { dot: "#F59E0B", text: "VAT due in 13d" },
+            { dot: "#6366F1", text: "Subscription idle" },
+          ].map((a, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-[6px] h-[6px] rounded-full shrink-0" style={{ background: a.dot }} />
+              <span className="text-[10px] font-medium text-[#6B7280] truncate">{a.text}</span>
             </div>
-            {/* Alerts */}
-            <div style={{ background: "#0E1422", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(255,255,255,0.055)" }}>
-              <div style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Alertas</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {alerts.map((a, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, padding: "6px 8px", borderRadius: 6, background: "rgba(255,255,255,0.028)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.color, flexShrink: 0 }} />
-                    <div style={{ fontSize: 7.5, color: "rgba(255,255,255,0.48)", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.text}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Transactions */}
-          <div style={{ background: "#0E1422", borderRadius: 10, border: "1px solid rgba(255,255,255,0.055)", overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-              <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.42)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Transações Recentes</span>
-              <span style={{ fontSize: 7, color: "#4979EF", fontWeight: 600 }}>Ver todas →</span>
-            </div>
-            {transactions.map((tx, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 12px", borderBottom: i < transactions.length - 1 ? "1px solid rgba(255,255,255,0.035)" : "none" }}>
-                <div style={{ width: 22, height: 22, borderRadius: 5, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, background: tx.neg ? "rgba(239,68,68,0.10)" : "rgba(52,211,153,0.10)", color: tx.neg ? "rgba(248,113,113,0.80)" : "rgba(52,211,153,0.80)" }}>
-                  {tx.neg ? "↓" : "↑"}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 8.5, fontWeight: 600, color: "rgba(255,255,255,0.68)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.name}</div>
-                  <div style={{ fontSize: 7, color: "rgba(255,255,255,0.28)", marginTop: 1 }}>{tx.cat}</div>
-                </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontSize: 8.5, fontWeight: 700, color: tx.neg ? "rgba(248,113,113,0.80)" : "rgba(52,211,153,0.80)" }}>{tx.amount}</div>
-                  <div style={{ fontSize: 7, color: "rgba(255,255,255,0.22)", marginTop: 1 }}>{tx.date}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-export async function HeroSection() {
-  const t = await getTranslations("Marketing.hero");
+/* ─────────────────────────────────────────────────────────
+   CASH FLOW CARD (floating bottom-right)
+   Area chart with gradient + dashed projection
+   ───────────────────────────────────────────────────────── */
+function CashFlowFloat() {
+  return (
+    <div className="p-5 w-[280px]">
+      <div className="flex items-center justify-between mb-1">
+        <div className="text-[12px] font-bold text-[#111827]">Cash Flow</div>
+        <span className="text-[9px] font-bold px-2 py-0.5 rounded-md" style={{ color: COLORS.emerald, background: COLORS.emeraldBg }}>+18% YoY</span>
+      </div>
+      <div className="text-[9px] font-medium text-[#9CA3AF] mb-3">Last 6 months · Projection included</div>
+      <svg className="w-full h-[80px]" viewBox="0 0 260 80" fill="none">
+        {/* Actual data line */}
+        <path d="M0 65 C30 58,50 40,80 35 S130 22,160 28 S190 32,200 30" stroke="#6366F1" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Gradient fill */}
+        <path d="M0 65 C30 58,50 40,80 35 S130 22,160 28 S190 32,200 30 V80 H0 Z" fill="url(#cfFloatGrad)" opacity="0.15" />
+        {/* Dashed projection line */}
+        <path d="M200 30 C220 26,240 22,260 18" stroke="#6366F1" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" opacity="0.5" />
+        {/* Expenses line */}
+        <path d="M0 68 C30 66,50 60,80 58 S130 52,160 54 S190 56,200 55" stroke="#10B981" strokeWidth="1.5" opacity="0.6" />
+        <defs><linearGradient id="cfFloatGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366F1" /><stop offset="100%" stopColor="#6366F1" stopOpacity="0" /></linearGradient></defs>
+      </svg>
+      <div className="flex items-center gap-4 mt-2">
+        <span className="flex items-center gap-1.5 text-[9px] font-medium text-[#6B7280]"><span className="w-2 h-0.5 rounded-full bg-[#6366F1] inline-block" />Actual</span>
+        <span className="flex items-center gap-1.5 text-[9px] font-medium text-[#6B7280]"><span className="w-2 h-0.5 rounded-full bg-[#6366F1] inline-block opacity-50 border-dashed" />Projection</span>
+        <span className="flex items-center gap-1.5 text-[9px] font-medium text-[#6B7280]"><span className="w-2 h-0.5 rounded-full bg-[#10B981] inline-block" />Expenses</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   TAX WIDGET (floating top-right)
+   Shield icon + Provisioned status
+   ───────────────────────────────────────────────────────── */
+function TaxWidget() {
+  return (
+    <div className="p-5 w-[220px]">
+      <div className="flex items-center gap-3 mb-3">
+        {/* Shield icon */}
+        <div className="w-9 h-9 rounded-[12px] flex items-center justify-center" style={{ background: COLORS.emeraldBg }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={COLORS.emerald} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        </div>
+        <div>
+          <div className="text-[12px] font-bold text-[#111827]">Tax Status</div>
+          <div className="text-[10px] font-medium text-[#10B981]">Provisioned ✓</div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[9px] font-bold text-[#9CA3AF] uppercase tracking-[0.08em]">IVA Q2 2026</span>
+        <span className="text-[14px] font-bold text-[#111827]" style={{ fontFeatureSettings: "'tnum'" }}>£10,292</span>
+      </div>
+      {/* Progress */}
+      <div className="w-full h-2 rounded-full bg-[#F3F4F6] overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "78%" }}
+          transition={{ duration: 1.2, delay: 1.2, ease: "easeOut" }}
+          className="h-full rounded-full bg-[#10B981]"
+        />
+      </div>
+      <div className="flex items-center justify-between mt-1.5">
+        <span className="text-[9px] font-medium text-[#9CA3AF]">78% provisioned</span>
+        <span className="text-[9px] font-bold text-[#10B981]">On schedule</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   FINANCIAL MIX BADGE (floating left-center)
+   Business vs Personal split
+   ───────────────────────────────────────────────────────── */
+function FinancialMixBadge() {
+  return (
+    <div className="p-4 w-[200px]">
+      <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-[0.08em] mb-3">Financial Mix</div>
+      <div className="flex items-center gap-2 mb-3">
+        {/* Stacked bar */}
+        <div className="flex-1 h-3 rounded-full overflow-hidden flex">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "72%" }}
+            transition={{ duration: 1, delay: 1.4, ease: "easeOut" }}
+            className="h-full bg-[#6366F1] rounded-l-full"
+          />
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "28%" }}
+            transition={{ duration: 1, delay: 1.5, ease: "easeOut" }}
+            className="h-full bg-[#10B981] rounded-r-full"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-sm bg-[#6366F1]" />
+          <span className="text-[10px] font-bold text-[#111827]">Business</span>
+          <span className="text-[10px] font-medium text-[#9CA3AF]">72%</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-sm bg-[#10B981]" />
+          <span className="text-[10px] font-bold text-[#111827]">Personal</span>
+          <span className="text-[10px] font-medium text-[#9CA3AF]">28%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   HERO SECTION
+   ───────────────────────────────────────────────────────── */
+export function HeroSection() {
+  const t = useTranslations("Marketing.hero");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
+  const floatY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const floatOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
   return (
     <section
-      className="relative overflow-hidden flex flex-col"
-      style={{ background: "#050A14", minHeight: "100vh" }}
+      ref={containerRef}
+      className="relative overflow-hidden"
+      style={{ background: COLORS.bg, minHeight: "100vh" }}
     >
-      {/* Background layers */}
+      {/* Subtle background accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute rounded-full blur-[140px]" style={{ top: "-20%", left: "10%", width: 800, height: 800, background: "#4979EF", opacity: 0.08 }} />
-        <div className="absolute rounded-full blur-[120px]" style={{ top: "30%", right: "0%", width: 600, height: 600, background: "#7C3AED", opacity: 0.06 }} />
-        <div className="absolute rounded-full blur-[130px]" style={{ bottom: "5%", left: "35%", width: 700, height: 500, background: "#06B6D4", opacity: 0.05 }} />
-        {/* Dot grid */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)",
-            backgroundSize: "30px 30px",
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,10,20,0.5) 0%, transparent 30%, rgba(5,10,20,0.8) 100%)" }} />
+        <div className="absolute top-[-15%] right-[-10%] w-[700px] h-[700px] rounded-full opacity-[0.035]" style={{ background: "radial-gradient(circle, #6366F1, transparent 70%)" }} />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full opacity-[0.03]" style={{ background: "radial-gradient(circle, #10B981, transparent 70%)" }} />
       </div>
 
-      {/* Hero content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-6 pt-[110px] pb-0">
-        {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-[11px] font-semibold tracking-wide"
-          style={{
-            background: "rgba(73,121,239,0.10)",
-            border: "1px solid rgba(73,121,239,0.25)",
-            color: "#7BA4FF",
-          }}
-        >
-          <span className="relative flex" style={{ width: 7, height: 7 }}>
-            <span
-              className="animate-ping absolute inline-flex rounded-full"
-              style={{ width: "100%", height: "100%", background: "#4979EF", opacity: 0.75 }}
-            />
-            <span className="relative inline-flex rounded-full" style={{ width: 7, height: 7, background: "#4979EF" }} />
-          </span>
-          {t("badge")}
-        </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-36 md:pt-44 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-        {/* Headline */}
-        <h1
-          className="font-black tracking-tight text-white leading-[1.03] mb-6"
-          style={{ fontSize: "clamp(38px, 6.5vw, 72px)", maxWidth: 900 }}
-        >
-          {t("headline1")}
-          <br />
-          <span
-            style={{
-              background: "linear-gradient(135deg, #4979EF 0%, #7C3AED 50%, #06B6D4 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            {t("headline2")}
-          </span>
-          <br />
-          {t("headline3")}
-        </h1>
-
-        {/* Subhead */}
-        <p
-          className="font-light leading-relaxed mb-10"
-          style={{ fontSize: "clamp(16px, 1.8vw, 19px)", color: "rgba(255,255,255,0.45)", maxWidth: 580 }}
-        >
-          {t("subhead")}
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col items-center gap-3 mb-5">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/register"
-              className="group flex items-center gap-2.5 font-bold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-              style={{
-                padding: "15px 36px",
-                borderRadius: 14,
-                fontSize: 16,
-                background: "linear-gradient(135deg, #4979EF, #3B6CE0)",
-                boxShadow: "0 0 36px rgba(73,121,239,0.50), 0 4px 20px rgba(0,0,0,0.3)",
-                transition: "box-shadow 200ms ease, filter 200ms ease, transform 100ms ease",
-              }}
+          {/* ═══ LEFT: Headline + CTA ═══ */}
+          <div className="flex flex-col items-start text-left max-w-xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
+              className="font-heading font-black tracking-tight text-[#111827] mb-6 leading-[1.08]"
+              style={{ fontSize: "clamp(40px, 5.5vw, 64px)" }}
             >
-              {t("cta1")}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-            </Link>
-            <Link
-              href="/pricing"
-              className="flex items-center gap-2 font-semibold transition-all duration-200 hover:border-white/20"
-              style={{
-                padding: "15px 36px",
-                borderRadius: 14,
-                fontSize: 16,
-                color: "rgba(255,255,255,0.65)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.03)",
-              }}
-            >
-              {t("cta2")}
-            </Link>
-          </div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", letterSpacing: "0.01em" }}>
-            {t("trust")}
-          </p>
-        </div>
+              {t("headline1")}
+              <br />
+              <span className="text-[#6366F1]">{t("headline2")}</span>
+              <br />
+              {t("headline3")}
+            </motion.h1>
 
-        {/* Dashboard mockup */}
-        <div className="relative w-full" style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              bottom: -60,
-              width: "70%",
-              height: 100,
-              borderRadius: "50%",
-              background: "radial-gradient(ellipse, rgba(73,121,239,0.22) 0%, transparent 70%)",
-              filter: "blur(30px)",
-            }}
-          />
-          <div
-            className="relative rounded-2xl overflow-hidden marketing-float"
-            style={{
-              border: "1px solid rgba(255,255,255,0.07)",
-              boxShadow: "0 50px 150px rgba(0,0,0,0.85), 0 0 0 1px rgba(73,121,239,0.07), inset 0 1px 0 rgba(255,255,255,0.05)",
-            }}
-          >
-            {/* Browser chrome */}
-            <div
-              className="flex items-center gap-1.5 px-4"
-              style={{ height: 36, background: "#060C1A", borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+              className="text-[17px] font-medium leading-relaxed text-[#6B7280] mb-10 max-w-md"
             >
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57" }} />
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E" }} />
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
-              <div
-                className="flex items-center px-2.5"
-                style={{ flex: 1, margin: "0 16px", height: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 5 }}
+              {t("subhead")}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+              className="flex flex-col sm:flex-row items-start gap-4 mb-8"
+            >
+              <Link
+                href="/register"
+                className="group flex items-center justify-center gap-3 font-bold text-white transition-all duration-300 bg-[#6366F1] hover:bg-[#5558E6] hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  padding: "16px 36px",
+                  borderRadius: 14,
+                  fontSize: 16,
+                  boxShadow: "0 8px 20px -4px rgba(99,102,241,0.4), 0 2px 6px -1px rgba(99,102,241,0.2)",
+                }}
               >
-                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.18)", fontFamily: "monospace" }}>
-                  sgt-finance.vercel.app/dashboard
-                </span>
-              </div>
-            </div>
-            <DashboardPreview />
+                {t("cta1")}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+              <Link
+                href="/pricing"
+                className="flex items-center justify-center gap-2 font-bold transition-all duration-300 text-[#111827] hover:bg-white hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  padding: "16px 36px",
+                  borderRadius: 14,
+                  fontSize: 16,
+                  background: "rgba(255,255,255,0.7)",
+                  backdropFilter: "blur(10px)",
+                  border: `1px solid ${COLORS.border}`,
+                  boxShadow: CARD_SHADOW,
+                }}
+              >
+                {t("cta2")}
+              </Link>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-[13px] font-medium text-[#9CA3AF]"
+            >
+              {t("trust")}
+            </motion.p>
           </div>
+
+          {/* ═══ RIGHT: Orbital Dashboard Composition ═══ */}
+          <motion.div
+            className="relative w-full min-h-[520px] lg:min-h-[580px]"
+            style={{ y: floatY, opacity: floatOpacity }}
+          >
+            {/* ── Main Dashboard (center, with perspective) ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, rotateY: -4, rotateX: 4 }}
+              animate={{ opacity: 1, y: 0, rotateY: 0, rotateX: 0 }}
+              transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10"
+              style={{ perspective: "1200px" }}
+            >
+              <div
+                className="rounded-[24px] overflow-hidden bg-white"
+                style={{ boxShadow: CARD_SHADOW_LG, border: `1px solid ${COLORS.border}` }}
+              >
+                {/* Browser chrome */}
+                <div className="flex items-center h-10 bg-[#F3F4F6] border-b px-4 gap-3" style={{ borderColor: COLORS.border }}>
+                  <div className="flex items-center gap-[6px]">
+                    <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
+                    <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
+                    <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <div className="h-[22px] w-[50%] max-w-[240px] rounded-md bg-white flex items-center justify-center gap-1.5" style={{ border: `1px solid ${COLORS.border}` }}>
+                      <span className="text-[10px] font-medium text-[#9CA3AF] tracking-tight">sgt-finance.vercel.app</span>
+                    </div>
+                  </div>
+                  <div className="w-[42px]" />
+                </div>
+                <DashboardCard />
+              </div>
+            </motion.div>
+
+            {/* ── Tax Widget (floating top-right, higher Z) ── */}
+            <div className="absolute -top-4 -right-4 md:right-0 z-20">
+              <FloatCard delay={0.9} shadow={CARD_SHADOW_FLOAT}>
+                <TaxWidget />
+              </FloatCard>
+            </div>
+
+            {/* ── Cash Flow (floating bottom-left, lower Z) ── */}
+            <div className="absolute -bottom-6 -left-6 md:-left-8 z-20">
+              <FloatCard delay={1.0} shadow={CARD_SHADOW_FLOAT}>
+                <CashFlowFloat />
+              </FloatCard>
+            </div>
+
+            {/* ── Financial Mix (floating mid-left) ── */}
+            <div className="absolute top-[38%] -left-10 md:-left-12 z-20">
+              <FloatCard delay={1.1} shadow={CARD_SHADOW_FLOAT}>
+                <FinancialMixBadge />
+              </FloatCard>
+            </div>
+
+            {/* ── ROI Badge (floating bottom-right) ── */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 1.3 }}
+              className="absolute bottom-8 right-2 md:right-6 z-30 rounded-[16px] px-4 py-3 flex items-center gap-3"
+              style={{
+                background: "rgba(255,255,255,0.85)",
+                backdropFilter: "blur(16px)",
+                boxShadow: CARD_SHADOW_FLOAT,
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-sm font-black" style={{ background: COLORS.emeraldBg, color: COLORS.emerald }}>↑</div>
+              <div>
+                <div className="text-[14px] font-bold text-[#111827] leading-none">ROI <span className="text-[#10B981]">+34%</span></div>
+                <div className="text-[10px] font-medium text-[#9CA3AF]">this quarter</div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>

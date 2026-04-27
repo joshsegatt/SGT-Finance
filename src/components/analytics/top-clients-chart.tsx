@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, Cell,
 } from "recharts";
 import { useChartTheme } from "@/hooks/use-chart-theme";
+import { formatCurrency } from "@/lib/format";
 
 interface DataPoint { name: string; revenue: number; }
 
@@ -16,23 +17,23 @@ function fmt(v: number) {
 
 const COLORS = ["#4979EF", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444"];
 
-interface TooltipArgs { active?: boolean; payload?: readonly { value?: number | string }[]; label?: string; theme: ReturnType<typeof useChartTheme>; }
+interface TooltipArgs { active?: boolean; payload?: any[]; label?: string; theme: any; }
 
 function CustomTooltip({ active, payload, label, theme }: TooltipArgs) {
   if (!active || !payload?.length) return null;
   const revenue = payload[0]?.value ?? 0;
+  const color = payload[0]?.payload?.fill || "#4979EF";
+
   return (
-    <div style={{
-      backgroundColor: theme.tooltipBg,
-      border: `1px solid ${theme.tooltipBorder}`,
-      borderRadius: "10px",
-      padding: "10px 14px",
-      boxShadow: theme.tooltipShadow,
-    }}>
-      <p style={{ fontSize: "11px", color: theme.tooltipMuted, fontWeight: 600, marginBottom: "4px" }}>{label}</p>
-      <p style={{ fontSize: "14px", fontWeight: 700, color: "#4979EF" }}>
-        £{Number(revenue).toLocaleString("en-GB", { maximumFractionDigits: 0 })}
-      </p>
+    <div className="backdrop-blur-md bg-card/80 border border-border rounded-xl p-3 shadow-2xl min-w-[140px] animate-in fade-in zoom-in-95 duration-200">
+      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">{label}</p>
+      <div className="flex items-center gap-3 justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+          <span className="text-xs text-muted-foreground">Revenue</span>
+        </div>
+        <span className="text-sm font-black text-foreground">{formatCurrency(revenue)}</span>
+      </div>
     </div>
   );
 }
@@ -41,31 +42,56 @@ export function TopClientsChart({ data }: { data: DataPoint[] }) {
   const theme = useChartTheme();
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 72 }}>
-        <XAxis
-          type="number"
-          tickFormatter={fmt}
-          tick={{ fontSize: 11, fill: theme.tick }}
-          axisLine={false}
-          tickLine={false}
-        />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={{ fontSize: 11, fill: theme.tick }}
-          axisLine={false}
-          tickLine={false}
-          width={70}
-          tickFormatter={(v: string) => v.length > 10 ? v.slice(0, 10) + "…" : v}
-        />
-        <Tooltip content={(props: any) => <CustomTooltip {...props} theme={theme} />} cursor={{ fill: theme.cursorFill }} />
-        <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={32}>
-          {data.map((_, i) => (
-            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="w-full h-full min-h-[220px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 0, right: 30, bottom: 0, left: 100 }}
+          barSize={24}
+        >
+          <defs>
+            {COLORS.map((c, i) => (
+              <linearGradient key={i} id={`clientGrad-${i}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={c} stopOpacity={0.8} />
+                <stop offset="100%" stopColor={c} stopOpacity={1} />
+              </linearGradient>
+            ))}
+          </defs>
+          <XAxis
+            type="number"
+            tickFormatter={fmt}
+            tick={{ fontSize: 10, fill: theme.tick, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            tick={{ fontSize: 10, fill: theme.tick, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
+            width={90}
+            tickFormatter={(v: string) => v.length > 15 ? v.slice(0, 15) + "…" : v}
+          />
+          <Tooltip
+            content={(props: any) => <CustomTooltip {...props} theme={theme} />}
+            cursor={{ fill: theme.cursorFill, radius: 4 }}
+            animationDuration={200}
+          />
+          <Bar
+            dataKey="revenue"
+            radius={[0, 4, 4, 0]}
+            animationDuration={1500}
+            animationEasing="ease-out"
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={`url(#clientGrad-${i % COLORS.length})`} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
+

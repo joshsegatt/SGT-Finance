@@ -9,7 +9,7 @@ export default function MarketingLayout({
   return (
     <>
       <MarketingNav />
-      <div style={{ background: "#050A14" }}>{children}</div>
+      <div className="bg-background">{children}</div>
       <MarketingFooter />
     </>
   );
